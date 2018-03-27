@@ -24,24 +24,55 @@ archs4_file_path <- function(what, datadir = getOption("archs4.datadir")) {
   fn
 }
 
-#' Classify a vector of sample or series GEO ID's as such
+#' Retrieves the feature (gene/transcript) information for the archs4 data
 #'
-#' GEO series identifiers all start with GSE and sample identifiers all
-#' start with GSM. We use that to identify what types of identifiers are
-#' passed into `id`
+#' Unfortunately only the gene symbols are stored in the gene-level count data
+#' in `"meta/genes"`.
 #'
-#' @export
+#' @importFrom readr read_csv
 #'
-#' @param id a character vector of `GSEnnnnn` or `GSMnnnnn` ids
-#' @return a tibble of `unique(id)` indicating if the id is a `"series"`
-#'   (GSEnnnnn), `"sample"` (GSMnnnnn), or `"unknown"`.
-geo_id_type <- function(id) {
-  id <- assert_character(id) %>% unique
-  type <- case_when(
-    is_geo_series_id(id) ~ "series",
-    is_geo_sample_id(id) ~ "sample",
-    TRUE                 ~ "unknown")
-  tibble(id = id, type = type)
+#' @param feature_type gene or transcript?
+#' @param source human or mouse
+#' @return a tibble of information
+archs4_feature_info <- function(feature_type = c("gene", "transcript"),
+                                source = c("human", "mouse"),
+                                distinct_symbol = TRUE) {
+  feature_type <- match.arg(feature_type)
+  if (feature_type == "transcript") {
+    stop("transcript level features not supported yet")
+  }
+
+  source <- match.arg(source)
+
+  h5.fn <- archs4_file_path(paste(source, feature_type, sep = "_"))
+
+  if (feature_type == "gene") {
+    ainfo <- tibble(symbol = rhdf5::h5read(h5.fn, "meta/genes"),
+                    h5idx = seq(symbol))
+
+    meta <- local({
+      fn <- sprintf("gencode.%s.basic.annotation.csv.gz",
+                    if (source == "human") "v27" else "vM16")
+      fn <- system.file("extdata", "feature-annotation", fn,
+                        package = "archs4", mustWork = TRUE)
+      coltypes <- "ccicc"
+
+      out <- readr::read_csv(fn, col_types = coltypes)
+
+      if (distinct_symbol) {
+        # there are duplicate entries by symbol. here I pick one by arranging
+        # by symbol and entrez_id, this puts NA entrez_ids last
+        out <- arrange(out, symbol, entrez_id)
+        out <- distinct(out, symbol, .keep_all = TRUE)
+      }
+
+      out
+    })
+
+    ainfo <- left_join(ainfo, meta, by = "symbol")
+  }
+
+  ainfo
 }
 
 
@@ -53,25 +84,26 @@ geo_id_type <- function(id) {
 #' @export
 #'
 #' @param id a character vector of GEO series or sample ids.
-#' @param from the dataset to look up. If this is `"human"` or `"mouse"`, then
+#' @param source the dataset to look up. If this is `"human"` or `"mouse"`, then
 #'   the default gene expression file for that organism found in
 #'   `getOption("archs4.datadir")` is used. Otherwise this can be a path to an
 #'   hdf5 ARCHS4 expression file.
 #' @param a tibble of sample information.
-#' @return a tibble of series, sample_id, sample_title, and sample_name columns.
-#'   If the query sample or series query can't be found, then there will be an
-#'   `NA` value for these columns. The `query_type` column will indicat whether
-#'   the row was returned from querying by series or by sample.
-archs4_sample_info <- function(id, from = "human", ...) {
+#' @return a tibble of series, sample_id, sample_h5idx, sample_title, and
+#'   sample_name columns. If the query sample or series query can't be found,
+#'   then there will be an `NA` value for these columns. The `query_type` column
+#'   will indicat whether the row was returned from querying by series or by
+#'   sample.
+archs4_sample_info <- function(id, source = "human", ...) {
   input <- geo_id_type(id)
   bad.id <- filter(input, type == "unknown")
   if (nrow(bad.id)) {
     stop("Unknown identifiers: ", paste(bad.id$id, collapse = ", "))
   }
 
-  assert_string(from)
-  if (from %in% c("human", "mouse")) {
-    h5.fn <- archs4_file_path(paste0(from, "_gene"))
+  assert_string(source)
+  if (source %in% c("human", "mouse")) {
+    h5.fn <- archs4_file_path(paste0(source, "_gene"))
   }
   stopifnot(is_archs4_expression_file(h5.fn))
 
@@ -108,12 +140,12 @@ archs4_sample_info <- function(id, from = "human", ...) {
       desc <- h5read(h5.fn, "meta/Sample_description", list(take))
     }
   } else {
-    stitle <- sm <- desc <- NA_character_
+    stitle <- sm <- desc <- take <- NA_character_
     if (type == "series") sample_id <- sm else series_id <- sm
   }
 
-  out <- tibble(series_id = id, sample_id = sample_id, sample_title = stitle,
-                sample_name = sm)
+  out <- tibble(series_id = id, sample_id = sample_id, sample_h5idx = take,
+                sample_title = stitle, sample_name = sm)
   if (with.description) {
     out[['sample_description']] <- desc
   }

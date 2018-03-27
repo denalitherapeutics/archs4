@@ -4,12 +4,12 @@
 \alias{archs4_sample_info}
 \title{Retrieves information for samples by GSE series or sample IDs}
 \usage{
-archs4_sample_info(id, from = "human", ...)
+archs4_sample_info(id, source = "human", ...)
 }
 \arguments{
 \item{id}{a character vector of GEO series or sample ids.}
 
-\item{from}{the dataset to look up. If this is \code{"human"} or \code{"mouse"}, then
+\item{source}{the dataset to look up. If this is \code{"human"} or \code{"mouse"}, then
 the default gene expression file for that organism found in
 \code{getOption("archs4.datadir")} is used. Otherwise this can be a path to an
 hdf5 ARCHS4 expression file.}
@@ -17,10 +17,11 @@ hdf5 ARCHS4 expression file.}
 \item{a}{tibble of sample information.}
 }
 \value{
-a tibble of series, sample_id, sample_title, and sample_name columns.
-If the query sample or series query can't be found, then there will be an
-\code{NA} value for these columns. The \code{query_type} column will indicat whether
-the row was returned from querying by series or by sample.
+a tibble of series, sample_id, sample_h5idx, sample_title, and
+sample_name columns. If the query sample or series query can't be found,
+then there will be an \code{NA} value for these columns. The \code{query_type} column
+will indicat whether the row was returned from querying by series or by
+sample.
 }
 \description{
 Fetch a tibble of series and sample information by querying the arcsh4

@@ -2,6 +2,8 @@
 
 export(archs4_file_path)
 export(archs4_sample_info)
+export(as.DGEList)
 export(geo_id_type)
 import(checkmate)
 import(rhdf5)
+importFrom(readr,read_csv)

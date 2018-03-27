@@ -11,7 +11,7 @@ Depends:
     dplyr,
     purrr
 Imports:
-    GEOquery,
+    readr,
     rhdf5
 License: Apache 2.0
 Encoding: UTF-8
