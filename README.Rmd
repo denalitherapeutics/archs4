@@ -57,7 +57,8 @@ GEO series identifier ("[GSE52564][zhanggeo]") and do this:
 y <- archs4::as.DGEList("GSE52564", feature_type = "gene")
 ```
 
-That command takes about a second to run on recent SSD-driven laptop.
+That command loads a 31,553 gene by 17 sample DGEList, and takes about a second
+to run on recent SSD-driven laptop.
 
 [zhangpub]: http://www.jneurosci.org/content/34/36/11929.long
 [zhanggeo]: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE52564

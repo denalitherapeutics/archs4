@@ -43,4 +43,4 @@ You can materialize a `DGEList` from a series of series and sample-level identif
 y <- archs4::as.DGEList("GSE52564", feature_type = "gene")
 ```
 
-That command takes about a second to run on recent SSD-driven laptop.
+That command loads a 31,553 gene by 17 sample DGEList, and takes about a second to run on recent SSD-driven laptop.
