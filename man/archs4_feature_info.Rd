@@ -17,5 +17,24 @@ a tibble of information
 }
 \description{
 Unfortunately only the gene symbols are stored in the gene-level count data
-in \code{"meta/genes"}.
+in \code{"meta/genes"}, so we augment the gene information by creating tables
+of gene information found in \code{extdata/feature-annotation}.
 }
+\section{Augmented Gene Information}{
+
+Unfortunately the gene symbol is the only piece of information provided for
+the row-level in the gene count matrices. Furthermore, the gene symbol used
+in mouse are in all uppercase, which is not how genes are referred to there.
+In order to augment the gene symbol information with gene-level identifiers
+and other information, we parse relatively recent GTFs provided by GENCODE.
+
+The \code{extdata/feature-annotation/create-gene-annotaiton.R} script parses
+relatively recent versions of the GENCODE-basic annotations and combines
+these with biomaRt queries to get gene-level meta informations for the
+annotated genes in these assemblies.
+
+The gene symbols from both the ARCHS4 h5 matrix and our gene-level metadata
+files are transformed to lowercase and joined to harmonize these results.
+This may likely be wrong!
+}
+

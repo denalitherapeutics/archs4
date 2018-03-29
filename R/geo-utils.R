@@ -17,3 +17,4 @@ geo_id_type <- function(id) {
     TRUE                 ~ "unknown")
   tibble(id = id, type = type)
 }
+

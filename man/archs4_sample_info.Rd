@@ -4,7 +4,7 @@
 \alias{archs4_sample_info}
 \title{Retrieves information for samples by GSE series or sample IDs}
 \usage{
-archs4_sample_info(id, source = "human", ...)
+archs4_sample_info(id, with_description = FALSE, ...)
 }
 \arguments{
 \item{id}{a character vector of GEO series or sample ids.}
@@ -17,7 +17,7 @@ hdf5 ARCHS4 expression file.}
 \item{a}{tibble of sample information.}
 }
 \value{
-a tibble of series, sample_id, sample_h5idx, sample_title, and
+a tibble of series_id, sample_id, sample_h5idx, sample_title, and
 sample_name columns. If the query sample or series query can't be found,
 then there will be an \code{NA} value for these columns. The \code{query_type} column
 will indicat whether the row was returned from querying by series or by

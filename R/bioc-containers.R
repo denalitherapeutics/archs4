@@ -4,7 +4,6 @@
 #'
 #' @param id a vector of series or sample id's.
 #' @param feature_type do you want `"gene"` or `"transcript"` level expression?
-#' @param source `"human"` or `"mouse"`
 #' @param row_id either `"ensembl"` or `"symbol"`. If this is `"ensembl"` and
 #'   `feature_type == "transcript"`, then we remove the rows from the count
 #'   dataset that we couldn't map symbol -> ensembl_gene_id for.
@@ -13,17 +12,20 @@
 #' @examples
 #' y <- as.DGEList("GSE89189", feature_type = "gene", source = "human")
 as.DGEList <- function(id, feature_type = c("gene", "transcript"),
-                       source = c("human", "mouse"),
                        row_id = c("ensembl", "symbol")) {
   feature_type <- match.arg(feature_type)
   if (feature_type == "transcript") {
     stop("transcript level features not supported yet")
   }
 
-  source <- match.arg(source)
   row_id <- match.arg(row_id)
 
-  si <- archs4_sample_info(id, source)
+  si <- archs4_sample_info(id)
+  org <- unique(si$organism)
+  if (length(org) != 1L) {
+    stop("You are querying across species")
+  }
+
   bad.id <- filter(si, is.na(sample_h5idx))
   if (nrow(bad.id)) {
     stop("The following samples could not be found: ",
@@ -34,14 +36,14 @@ as.DGEList <- function(id, feature_type = c("gene", "transcript"),
   rownames(si) <- si$sample_id
 
   counts <- local({
-    h5.fn <- archs4_file_path(paste(source, feature_type, sep = "_"))
+    h5.fn <- archs4_file_path(paste(org, feature_type, sep = "_"))
     cnts <- rhdf5::h5read(h5.fn, "data/expression",
                           index=list(NULL, si$sample_h5idx))
     colnames(cnts) <- rownames(si)
     cnts
   })
 
-  finfo <- archs4_feature_info(feature_type, source)
+  finfo <- archs4_feature_info(feature_type, org)
   finfo <- as.data.frame(finfo, stringsAsFactors = FALSE)
   if (feature_type == "gene") {
     if (row_id == "ensembl") {

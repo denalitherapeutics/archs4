@@ -4,15 +4,13 @@
 \alias{as.DGEList}
 \title{Create a DGEList for the expression data of a series or set of samples.}
 \usage{
-as.DGEList(id, feature_type = c("gene", "transcript"), source = c("human",
-  "mouse"), row_id = c("ensembl", "symbol"))
+as.DGEList(id, feature_type = c("gene", "transcript"), row_id = c("ensembl",
+  "symbol"))
 }
 \arguments{
 \item{id}{a vector of series or sample id's.}
 
 \item{feature_type}{do you want \code{"gene"} or \code{"transcript"} level expression?}
-
-\item{source}{\code{"human"} or \code{"mouse"}}
 
 \item{row_id}{either \code{"ensembl"} or \code{"symbol"}. If this is \code{"ensembl"} and
 \code{feature_type == "transcript"}, then we remove the rows from the count

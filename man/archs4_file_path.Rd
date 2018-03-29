@@ -7,7 +7,8 @@
 archs4_file_path(what, datadir = getOption("archs4.datadir"))
 }
 \arguments{
-\item{what}{what type of file? \code{"human_gene"} or \code{"mouse_gene"}}
+\item{what}{what type of file? \code{"human_gene"} or \code{"mouse_gene"}. This can
+be vectorized.}
 }
 \value{
 the path on the filesystem for the path asked for

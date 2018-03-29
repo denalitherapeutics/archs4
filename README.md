@@ -23,21 +23,24 @@ After downloading the necessary files, you can get sample information for GEO se
 library(archs4)
 
 ids <- c('GSE89189', 'GSE29943', "GSM1095128", "GSM1095129", "GSM1095130")
-sample.info <- archs4_sample_info(ids, source = "human")
+sample.info <- archs4_sample_info(ids)
 head(sample.info)
-#> # A tibble: 6 x 6
-#>   series_id sample_id  sample_h5idx sample_title sample_name   query_type
-#>   <chr>     <chr>             <int> <chr>        <chr>         <chr>     
-#> 1 GSE89189  GSM2360252        69074 10318X2      iPS microglia series    
-#> 2 GSE89189  GSM2360253        69075 7028X2       iPS microglia series    
-#> 3 GSE89189  GSM2360254        69076 x2-1         iPS microglia series    
-#> 4 GSE89189  GSM2360255        69077 x2-2         iPS microglia series    
-#> 5 GSE89189  GSM2360256        69078 x2-3         iPS microglia series    
-#> 6 GSE89189  GSM2360257        69079 x2-4         iPS microglia series
+#> # A tibble: 6 x 7
+#>   series_id sample_id  query_type sample_h5idx organism sample_title
+#>   <chr>     <chr>      <chr>             <int> <chr>    <chr>       
+#> 1 GSE89189  GSM2360252 series            69074 human    10318X2     
+#> 2 GSE89189  GSM2360253 series            69075 human    7028X2      
+#> 3 GSE89189  GSM2360254 series            69076 human    x2-1        
+#> 4 GSE89189  GSM2360255 series            69077 human    x2-2        
+#> 5 GSE89189  GSM2360256 series            69078 human    x2-3        
+#> 6 GSE89189  GSM2360257 series            69079 human    x2-4        
+#> # ... with 1 more variable: sample_name <chr>
 ```
 
-or create a `DGEList` from a GEO series like so:
+You can materialize a `DGEList` from a series of series and sample-level identifiers, as well. For instance, to create a DGEList from the [Zhang et al. (Barres) transcriptome database](http://www.jneurosci.org/content/34/36/11929.long). You would identify its GEO series identifier ("[GSE52564](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE52564)") and do this:
 
 ``` r
-y <- archs4::as.DGEList("GSE89189", feature_type = "gene", source = "human")
+y <- archs4::as.DGEList("GSE52564", feature_type = "gene")
 ```
+
+That command takes about a second to run on recent SSD-driven laptop.
