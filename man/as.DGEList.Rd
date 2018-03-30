@@ -4,8 +4,8 @@
 \alias{as.DGEList}
 \title{Create a DGEList for the expression data of a series or set of samples.}
 \usage{
-as.DGEList(id, feature_type = c("gene", "transcript"), row_id = c("ensembl",
-  "symbol"))
+as.DGEList(x, id, feature_type = c("gene", "transcript"),
+  row_id = c("ensembl", "symbol"))
 }
 \arguments{
 \item{id}{a vector of series or sample id's.}

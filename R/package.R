@@ -1,5 +1,9 @@
 # Should we import GEOquery?
 
-#' @import rhdf5
 #' @import checkmate
+#' @import dplyr
+#' @import purrr
+#' @import readr
+#' @import rhdf5
+#' @import tidyr
 NULL

@@ -7,12 +7,13 @@ Authors@R: c(
     person("Denali Therapeutics", role = c("cph", "fnd"))
     )
 Description: An R interface to query and extract data from the ARCHS4 data
-Depends:
-    dplyr,
-    purrr
 Imports:
+    checkmate,
+    dplyr,
+    purrr,
     readr,
-    rhdf5
+    rhdf5,
+    tidyr
 License: Apache 2.0
 Encoding: UTF-8
 LazyData: true

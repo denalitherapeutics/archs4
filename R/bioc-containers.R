@@ -11,53 +11,80 @@
 #'
 #' @examples
 #' y <- as.DGEList("GSE89189", feature_type = "gene", source = "human")
-as.DGEList <- function(id, feature_type = c("gene", "transcript"),
+as.DGEList <- function(x, id, feature_type = c("gene", "transcript"),
                        row_id = c("ensembl", "symbol")) {
+  assert_class(x, "Archs4Repository")
   feature_type <- match.arg(feature_type)
-  if (feature_type == "transcript") {
-    stop("transcript level features not supported yet")
-  }
-
   row_id <- match.arg(row_id)
 
-  si <- archs4_sample_info(id)
+  # Identify the unique samples that are being queried -------------------------
+  si <- sample_info(x, id)
+  si <- as.data.frame(si, strinsAsFactors = FALSE)
+  rownames(si) <- si$sample_id
+
+  # Check for identifiers that were not found
+  not.found <- filter(si, is.na(organism))
+  if (nrow(not.found)) {
+    stop("The following samples could not be found: ",
+         paste(sprintf("%s::%s", not.found$series_id, not.found$sample_id),
+               collapse = "; "))
+  }
+
+  # Check that user is asking for samples that are all from the same species
   org <- unique(si$organism)
   if (length(org) != 1L) {
     stop("You are querying across species")
   }
 
-  bad.id <- filter(si, is.na(sample_h5idx))
-  if (nrow(bad.id)) {
-    stop("The following samples could not be found: ",
-         paste(sprintf("%s::%s", bad.id$series_id, bad.id$sample_id),
-               collapse = "; "))
-  }
-  si <- as.data.frame(si, strinsAsFactors = FALSE)
-  rownames(si) <- si$sample_id
-
-  counts <- local({
-    h5.fn <- archs4_file_path(paste(org, feature_type, sep = "_"))
-    cnts <- rhdf5::h5read(h5.fn, "data/expression",
-                          index=list(NULL, si$sample_h5idx))
-    colnames(cnts) <- rownames(si)
-    cnts
-  })
-
+  # Fetch feature meta information ---------------------------------------------
   finfo <- archs4_feature_info(feature_type, org)
   finfo <- as.data.frame(finfo, stringsAsFactors = FALSE)
+  finfo <- filter(finfo, !is.na(h5idx))
   if (feature_type == "gene") {
     if (row_id == "ensembl") {
       finfo <- filter(finfo, !is.na(ensembl_gene_id))
-      counts <- counts[finfo$h5idx,,drop = FALSE]
-      rownames(counts) <- finfo[["ensembl_gene_id"]]
       rownames(finfo) <- finfo[["ensembl_gene_id"]]
     } else {
-      rownames(counts) <- finfo[["symbol"]]
       rownames(finfo) <- finfo[["symbol"]]
     }
   } else {
-    stop("TODOO: what to do with transcript-level finfo")
+    dup.ensid <- duplicated(finfo[["ensembl_id_full"]])
+    if (any(dup.ensid)) {
+      warning("Duplicated ensembl identifiers when version is removed, ",
+              "rownames maintain their versioned id")
+      rownames(finfo) <- finfo[["ensembl_id_full"]]
+    } else {
+      rownames(finfo) <- finfo[["ensembl_id"]]
+    }
   }
+
+  # Fetch the count data for the given samples ---------------------------------
+  h5col <- paste0("sample_h5idx_", feature_type)
+  isna <- is.na(si[[h5col]])
+  if (any(isna)) {
+    msg <- paste0(
+      "The following samples do not have ", feature_type,
+      "-level quantitation and will not be included in the expression ",
+      "container:\n  ",
+      paste(sprintf("%s::%s", si$series_id[isna], si$sample_id[isna]),
+            collapse = "; "))
+    warning(msg, immediate. = TRUE)
+    si <- si[!isna,,drop = FALSE]
+  }
+
+  if (nrow(si) == 0L) {
+    stop("No samples left to assemble expression data")
+  }
+
+  counts <- local({
+    h5.fn <- archs4_file_path(paste(org, feature_type, sep = "_"))
+    index <- list(NULL, si[[h5col]])
+    cnts <- rhdf5::h5read(h5.fn, "data/expression", index=index)
+    colnames(cnts) <- rownames(si)
+    cnts <- cnts[finfo$h5idx,,drop = FALSE]
+    rownames(cnts) <- rownames(finfo)
+    cnts
+  })
 
   out <- edgeR::DGEList(counts, genes = finfo, samples = si)
   out
