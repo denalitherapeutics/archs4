@@ -147,7 +147,7 @@ sample_info <- function(x, id,
 #' Create meta information for the genes and transcripts in the ARCHS4 dataset.
 #'
 #' This function creates feature-level metadata for the features enumerated in
-#' the `meta/genes` gene-level hdf5 file, and the `meta/ensemblid` transcript
+#' the `meta/genes` gene-level hdf5 file, and the `meta/transcript` transcript
 #' identfiers in the transctipt-level hdf5 file for the mouse and human files
 #' found in `datadir`.
 #'

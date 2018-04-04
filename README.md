@@ -27,12 +27,12 @@ head(sample.info)
 #> # A tibble: 6 x 8
 #>   series_id sample_id  query_type sample_h5idx_gene sample_h5idx_transcri…
 #>   <chr>     <chr>      <chr>                  <int>                  <int>
-#> 1 GSE89189  GSM2360252 series                 69074                  60169
-#> 2 GSE89189  GSM2360253 series                 69075                  60170
-#> 3 GSE89189  GSM2360254 series                 69076                  60173
-#> 4 GSE89189  GSM2360255 series                 69077                  60182
-#> 5 GSE89189  GSM2360256 series                 69078                  60188
-#> 6 GSE89189  GSM2360257 series                 69079                  60163
+#> 1 GSE89189  GSM2360252 series                 69074                  69074
+#> 2 GSE89189  GSM2360253 series                 69075                  69075
+#> 3 GSE89189  GSM2360254 series                 69076                  69076
+#> 4 GSE89189  GSM2360255 series                 69077                  69077
+#> 5 GSE89189  GSM2360256 series                 69078                  69078
+#> 6 GSE89189  GSM2360257 series                 69079                  69079
 #> # ... with 3 more variables: organism <chr>, Sample_title <chr>,
 #> #   Sample_source_name_ch1 <chr>
 ```

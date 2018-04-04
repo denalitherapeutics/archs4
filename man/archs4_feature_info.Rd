@@ -24,7 +24,7 @@ a tibble of information
 }
 \description{
 Only the gene symbols (\code{meta/genes} in gene expression hd5 file) or entrez
-transcript identifiers (\code{meta/ensemblid} for the transcript hdf5 file) are
+transcript identifiers (\code{meta/transcript} for the transcript hdf5 file) are
 stored in thse data. We use \code{\link[=create_augmented_gene_info]{create_augmented_gene_info()}} function to
 generate and store extra metadata for these features, which are then appended
 to these identifiers with this function.

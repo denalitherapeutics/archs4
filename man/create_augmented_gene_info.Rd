@@ -13,7 +13,7 @@ saved in this directory whe this function completes.}
 }
 \description{
 This function creates feature-level metadata for the features enumerated in
-the \code{meta/genes} gene-level hdf5 file, and the \code{meta/ensemblid} transcript
+the \code{meta/genes} gene-level hdf5 file, and the \code{meta/transcript} transcript
 identfiers in the transctipt-level hdf5 file for the mouse and human files
 found in \code{datadir}.
 }

@@ -1,7 +1,7 @@
 #' Retrieves the feature (gene/transcript) information for the archs4 data
 #'
 #' Only the gene symbols (`meta/genes` in gene expression hd5 file) or entrez
-#' transcript identifiers (`meta/ensemblid` for the transcript hdf5 file) are
+#' transcript identifiers (`meta/transcript` for the transcript hdf5 file) are
 #' stored in thse data. We use [create_augmented_gene_info()] function to
 #' generate and store extra metadata for these features, which are then appended
 #' to these identifiers with this function.
@@ -22,7 +22,7 @@ archs4_feature_info <- function(feature_type = c("gene", "transcript"),
 
   if (source == "mouse" && feature_type == "transcript") {
     stop("The meta information for the mouse transcript data ",
-         "(meta/ensemblid, meta/transriptlength) is incomplete. There are ",
+         "(meta/transcript, meta/transriptlength) is incomplete. There are ",
          "only 98,492 entries in these meta entries, but 178136 tx estimates ",
          "in the data/expression file.")
   }
@@ -59,7 +59,7 @@ archs4_feature_info <- function(feature_type = c("gene", "transcript"),
       select(-join) %>%
       select(symbol, ensembl_gene_id, entrez_id, gene_biotype, everything())
   } else {
-    ainfo <- tibble(ensembl_id_full = rhdf5::h5read(h5.fn, "meta/ensemblid"),
+    ainfo <- tibble(ensembl_id_full = rhdf5::h5read(h5.fn, "meta/transcript"),
                     ensembl_id = sub("\\.\\d+$", "", ensembl_id_full),
                     h5idx = seq(ensembl_id_full))
   }
