@@ -76,12 +76,14 @@ archs4.files <- function() {
     # human
     human_gene = list(fn = 'human_matrix.h5'),
     human_gene_info = list(fn = 'human_gene_augmented_info.csv.gz'),
-    human_transcript = list(fn='human_hiseq_eid_1.0.h5'),
+    # human_transcript = list(fn='human_hiseq_eid_1.0.h5'),
+    human_transcript = list(fn='human_hiseq_transcript_v2.h5'),
     human_transcript_info = list(fn='human_transcript_augmented_info.csv.gz'),
     # mouse
     mouse_gene = list(fn = 'mouse_matrix.h5'),
     mouse_gene_info = list(fn = 'mouse_gene_augmented_info.csv.gz'),
-    mouse_transcript = list(fn='mouse_hiseq_eid_1.0.h5'),
+    # mouse_transcript = list(fn='mouse_hiseq_eid_1.0.h5'),
+    mouse_transcript = list(fn='mouse_hiseq_transcript_v2.h5'),
     mouse_transcript_info = list(fn='mouse_transcript_augmented_info.csv.gz'))
 
   files
