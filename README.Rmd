@@ -63,14 +63,14 @@ below. This will create a `DGEList` of 27,024 genes across 37 samples in about
 1.5 seconds:
 
 ```{r, eval = FALSE}
-yg <- archs4::as.DGEList(a4, "GSE89189", feature_type = "gene")
+yg <- as.DGEList(a4, "GSE89189", feature_type = "gene")
 ```
 
 The following command retrieives the 178,135 transcript level counts for this
 experiment in about 1.5 seconds, as well:
 
 ```{r, eval = FALSE}
-yt <- archs4::as.DGEList(a4, "GSE89189", feature_type = "transcript")
+yt <- as.DGEList(a4, "GSE89189", feature_type = "transcript")
 ```
 
 

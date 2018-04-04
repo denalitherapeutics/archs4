@@ -11,14 +11,16 @@
 #'
 #' @examples
 #' y <- as.DGEList("GSE89189", feature_type = "gene", source = "human")
-as.DGEList <- function(x, id, feature_type = c("gene", "transcript"),
+as.DGEList <- function(x, id,
+                       sample_columns = c("Sample_title", "Sample_source_name_ch1"),
+                       feature_type = c("gene", "transcript"),
                        row_id = c("ensembl", "symbol")) {
   assert_class(x, "Archs4Repository")
   feature_type <- match.arg(feature_type)
   row_id <- match.arg(row_id)
 
   # Identify the unique samples that are being queried -------------------------
-  si <- sample_info(x, id)
+  si <- sample_info(x, id, columns = sample_columns)
   si <- as.data.frame(si, strinsAsFactors = FALSE)
   rownames(si) <- si$sample_id
 

@@ -32,6 +32,7 @@ Archs4Repository <- function(datadir = getOption("archs4.datadir")) {
   out <- list(
     sample_table = asi,
     sample_stats = bind_rows(gstats, tstats),
+    sample_covariates = archs4_sample_covariates(datadir),
     datadir = datadir)
   class(out) <- "Archs4Repository"
   out
@@ -116,11 +117,29 @@ sample_table <- function(x, feature_type = c("gene", "transcript"), ...) {
 }
 
 #' @export
+#' @rdname archs4_sample_covariates
+#' @param x an `Archs4Repository`
+sample_covariates <- function(x, ...) {
+  assert_class(x, "Archs4Repository")
+  x$sample_covariates
+}
+
+#' @export
 #' @rdname archs4_sample_info
 #' @param x an `Archs4Repository`
-sample_info <- function(x, id, with_description = FALSE, ...) {
+sample_info <- function(x, id,
+                        columns = c("Sample_title", "Sample_source_name_ch1"),
+                        ...) {
   assert_class(x, "Archs4Repository")
-  archs4_sample_info(id, sample_table(x), with_description, datadir(x), ...)
+
+  # check sample metadata columns
+  # scols <- archs4_sample_metadata_names(x$datadir)
+  # columns <- unique(columns)
+  # assert_character(columns, any.missing = FALSE, min.len = 1L)
+  # assert_subset(columns, scols)
+
+  archs4_sample_info(id, columns, sample_table(x), sample_covariates(x),
+                     datadir(x), ...)
 }
 
 # Helper Functions -------------------------------------------------------------

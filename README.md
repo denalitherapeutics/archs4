@@ -33,8 +33,8 @@ head(sample.info)
 #> 4 GSE89189  GSM2360255 series                 69077                  60182
 #> 5 GSE89189  GSM2360256 series                 69078                  60188
 #> 6 GSE89189  GSM2360257 series                 69079                  60163
-#> # ... with 3 more variables: organism <chr>, sample_title <chr>,
-#> #   sample_name <chr>
+#> # ... with 3 more variables: organism <chr>, Sample_title <chr>,
+#> #   Sample_source_name_ch1 <chr>
 ```
 
 You can use the `as.DGEList` function to materialize a `edgeR::DGEList` from a vector of series or sample-level identifiers, as long as they all reference the same species.
@@ -44,11 +44,11 @@ The most often use-case will likely be to create a `DGEList` for a given study. 
 You can get a `DGEList` of gene-level counts for that study using the command below. This will create a `DGEList` of 27,024 genes across 37 samples in about 1.5 seconds:
 
 ``` r
-yg <- archs4::as.DGEList(a4, "GSE89189", feature_type = "gene")
+yg <- as.DGEList(a4, "GSE89189", feature_type = "gene")
 ```
 
 The following command retrieives the 178,135 transcript level counts for this experiment in about 1.5 seconds, as well:
 
 ``` r
-yt <- archs4::as.DGEList(a4, "GSE89189", feature_type = "transcript")
+yt <- as.DGEList(a4, "GSE89189", feature_type = "transcript")
 ```

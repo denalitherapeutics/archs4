@@ -5,9 +5,11 @@
 \alias{archs4_sample_info}
 \title{Retrieves information for samples by GSE series or sample IDs}
 \usage{
-sample_info(x, id, with_description = FALSE, ...)
+sample_info(x, id, columns = c("Sample_title", "Sample_source_name_ch1"), ...)
 
-archs4_sample_info(id, sample_table = NULL, with_description = FALSE,
+archs4_sample_info(id, columns = c("Sample_title", "Sample_source_name_ch1"),
+  sample_table = archs4_sample_table(datadir = datadir),
+  sample_covariates = archs4_sample_covariates(datadir),
   datadir = getOption("archs4.datadir"), ...)
 }
 \arguments{
@@ -15,12 +17,14 @@ archs4_sample_info(id, sample_table = NULL, with_description = FALSE,
 
 \item{id}{a character vector of GEO series or sample ids.}
 
-\item{source}{the dataset to look up. If this is \code{"human"} or \code{"mouse"}, then
-the default gene expression file for that organism found in
-\code{getOption("archs4.datadir")} is used. Otherwise this can be a path to an
-hdf5 ARCHS4 expression file.}
+\item{columns}{the names of the sample metadata columns desired. This
+defaults to \code{c("Sample_title", "Sample_source_name_ch1")}. The values
+in \code{columns} must be a subset of the values enumerated in
+\code{\link[=archs4_sample_metadata_names]{archs4_sample_metadata_names()}}.}
 
-\item{a}{tibble of sample information.}
+\item{sample_table}{the output from \code{\link[=archs4_sample_table]{archs4_sample_table()}}}
+
+\item{datadir}{the directory that holds the archs4 data}
 }
 \value{
 a tibble of series_id, sample_id, sample_h5idx, sample_title, and
