@@ -2,66 +2,64 @@
 #'
 #' Only the gene symbols (`meta/genes` in gene expression hd5 file) or entrez
 #' transcript identifiers (`meta/transcript` for the transcript hdf5 file) are
-#' stored in thse data. We use [create_augmented_gene_info()] function to
+#' stored in thse data. We use [create_augmented_feature_info()] function to
 #' generate and store extra metadata for these features, which are then appended
 #' to these identifiers with this function.
 #'
 #' @export
 #' @importFrom readr read_csv
-#' @seealso [create_augmented_gene_info()]
+#' @seealso [create_augmented_feature_info()]
 #'
 #' @param feature_type gene or transcript?
 #' @param source human or mouse
+#' @param augmented include extra gene- or transcript-level features?
+#'   Default: `TRUE`
 #' @return a tibble of information
 archs4_feature_info <- function(feature_type = c("gene", "transcript"),
-                                source = c("human", "mouse"),
+                                source = archs4_sources(), augmented = TRUE,
                                 distinct_symbol = TRUE,
-                                datadir = getOption("archs4.datadir")) {
+                                datadir = getOption("archs4.datadir"), ...) {
+  assert_flag(augmented)
   feature_type <- match.arg(feature_type)
   source <- match.arg(source)
 
-  if (source == "mouse" && feature_type == "transcript") {
-    stop("The meta information for the mouse transcript data ",
-         "(meta/transcript, meta/transriptlength) is incomplete. There are ",
-         "only 98,492 entries in these meta entries, but 178136 tx estimates ",
-         "in the data/expression file.")
-  }
-  if (feature_type == "transcript") {
-    warning("Augmented transcript-level has not yet been generated (Issue #1)")
-  }
-
-
   h5.fn <- archs4_file_path(paste(source, feature_type, sep = "_"))
-  aug.fn <- paste(source, feature_type, "info", sep = "_")
-  aug.fn <- archs4_file_path(aug.fn)
-
-  if (feature_type == "gene") {
-    coltypes <- "ccicc"
-  } else {
-    coltypes <- NULL
-  }
 
   if (feature_type == "gene") {
     ainfo <- tibble(symbol = rhdf5::h5read(h5.fn, "meta/genes"),
-                    h5idx = seq(symbol),
-                    join = tolower(symbol))
-
-    meta <- readr::read_csv(aug.fn, col_types = coltypes)
-    meta[["join"]] <- tolower(meta[["symbol"]])
-    if (distinct_symbol) {
-      # there are duplicate entries by symbol. here I pick one by arranging
-      # by symbol and entrez_id, this puts NA entrez_ids last
-      meta <- arrange(meta, join, entrez_id)
-      meta <- distinct(meta, join, .keep_all = TRUE)
-    }
-
-    ainfo <- left_join(select(ainfo, -symbol), meta, by = "join") %>%
-      select(-join) %>%
-      select(symbol, ensembl_gene_id, entrez_id, gene_biotype, everything())
+                    h5idx = seq(symbol))
   } else {
     ainfo <- tibble(ensembl_id_full = rhdf5::h5read(h5.fn, "meta/transcript"),
                     ensembl_id = sub("\\.\\d+$", "", ensembl_id_full),
                     h5idx = seq(ensembl_id_full))
+  }
+
+  if (augmented) {
+    aug.fn <- paste(source, feature_type, "info", sep = "_")
+    aug.fn <- archs4_file_path(aug.fn)
+
+    if (feature_type == "gene") {
+      coltypes <- "ccicc"
+
+      meta <- readr::read_csv(aug.fn, col_types = coltypes)
+      meta[["join"]] <- tolower(meta[["symbol"]])
+      ainfo[["join"]] <- tolower(ainfo[["symbol"]])
+
+      if (distinct_symbol) {
+        # there are duplicate entries by symbol. here I pick one by arranging
+        # by symbol and entrez_id, this puts NA entrez_ids last
+        meta <- arrange(meta, join, entrez_id)
+        meta <- distinct(meta, join, .keep_all = TRUE)
+      }
+
+      ainfo <- left_join(select(ainfo, -symbol), meta, by = "join") %>%
+        select(-join) %>%
+        select(symbol, ensembl_gene_id, entrez_id, gene_biotype, everything())
+
+    } else {
+      coltypes <- NULL
+      warning("Augmented transcript-level has not yet been generated (Issue #1)")
+    }
   }
 
   ainfo

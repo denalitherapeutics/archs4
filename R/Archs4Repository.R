@@ -100,12 +100,13 @@ datadir <- function(x, ...) {
 #' @rdname archs4_feature_info
 #' @param x an `Archs4Repository`
 feature_info <- function(x, feature_type = c("gene", "transcript"),
-                         source = c("human", "mouse"),
-                         distinct_symbol = TRUE, ...) {
+                         source = archs4_sources(),
+                         distinct_symbol = TRUE, augmented = TRUE, ...) {
   assert_class(x, "Archs4Repository")
   feature_type <- match.arg(feature_type)
   source <- match.arg(source)
-  archs4_feature_info(feature_type, source, distinct_symbol, datadir(x), ...)
+  archs4_feature_info(feature_type, source, distinct_symbol, augmented,
+                      datadir(x), ...)
 }
 
 #' @export
