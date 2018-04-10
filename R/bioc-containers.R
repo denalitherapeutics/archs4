@@ -1,6 +1,7 @@
 #' Create a DGEList for the expression data of a series or set of samples.
 #'
 #' @export
+#' @importFrom rhdf5 h5read
 #'
 #' @param id a vector of series or sample id's.
 #' @param feature_type do you want `"gene"` or `"transcript"` level expression?
@@ -10,7 +11,8 @@
 #' @return a `DGEList` of results
 #'
 #' @examples
-#' y <- as.DGEList("GSE89189", feature_type = "gene", source = "human")
+#' a4 <- Archs4Repository()
+#' y <- as.DGEList(a4, "GSE89189", feature_type = "gene")
 as.DGEList <- function(x, id,
                        sample_columns = c("Sample_title", "Sample_source_name_ch1"),
                        feature_type = c("gene", "transcript"),
@@ -39,7 +41,7 @@ as.DGEList <- function(x, id,
   }
 
   # Fetch feature meta information ---------------------------------------------
-  finfo <- archs4_feature_info(feature_type, org)
+  finfo <- archs4_feature_info(feature_type, org, augmented = TRUE)
   finfo <- as.data.frame(finfo, stringsAsFactors = FALSE)
   finfo <- filter(finfo, !is.na(h5idx))
   if (feature_type == "gene") {

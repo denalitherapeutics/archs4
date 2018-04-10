@@ -12,7 +12,7 @@ validate.data.dir <- function(datadir = getOption("archs4.datadir")) {
       msg <- paste(
         "Missing augmented gene information in archs4 data directory:\n ",
         sprintf("[%s]", datadir),
-        "\n\nRun the create_augmented_gene_info(datadir) function")
+        "\n\nRun the create_augmented_feature_info(datadir) function")
     } else {
       msg <- paste(
         "The following ARCHS4 files need to be downloaded into the datadir:\n ",

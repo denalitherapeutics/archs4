@@ -5,11 +5,11 @@
 \alias{archs4_feature_info}
 \title{Retrieves the feature (gene/transcript) information for the archs4 data}
 \usage{
-feature_info(x, feature_type = c("gene", "transcript"), source = c("human",
-  "mouse"), distinct_symbol = TRUE, ...)
+feature_info(x, feature_type = c("gene", "transcript"),
+  source = archs4_sources(), distinct_symbol = TRUE, ...)
 
 archs4_feature_info(feature_type = c("gene", "transcript"),
-  source = c("human", "mouse"), distinct_symbol = TRUE,
+  source = archs4_sources(), distinct_symbol = TRUE,
   datadir = getOption("archs4.datadir"))
 }
 \arguments{
@@ -25,10 +25,10 @@ a tibble of information
 \description{
 Only the gene symbols (\code{meta/genes} in gene expression hd5 file) or entrez
 transcript identifiers (\code{meta/transcript} for the transcript hdf5 file) are
-stored in thse data. We use \code{\link[=create_augmented_gene_info]{create_augmented_gene_info()}} function to
+stored in thse data. We use \code{\link[=create_augmented_feature_info]{create_augmented_feature_info()}} function to
 generate and store extra metadata for these features, which are then appended
 to these identifiers with this function.
 }
 \seealso{
-\code{\link[=create_augmented_gene_info]{create_augmented_gene_info()}}
+\code{\link[=create_augmented_feature_info]{create_augmented_feature_info()}}
 }

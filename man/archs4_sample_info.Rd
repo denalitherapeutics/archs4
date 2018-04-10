@@ -22,7 +22,8 @@ defaults to \code{c("Sample_title", "Sample_source_name_ch1")}. The values
 in \code{columns} must be a subset of the values enumerated in
 \code{\link[=archs4_sample_metadata_names]{archs4_sample_metadata_names()}}.}
 
-\item{sample_table}{the output from \code{\link[=archs4_sample_table]{archs4_sample_table()}}}
+\item{sample_table}{the output from \code{\link[=archs4_sample_table]{archs4_sample_table()}}, which lists
+the series_id,sample_id combinations found in the ARCHS4 repository.}
 
 \item{datadir}{the directory that holds the archs4 data}
 }

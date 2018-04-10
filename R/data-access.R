@@ -137,15 +137,19 @@ archs4_sample_covariates <- function(datadir = getOption("archs4.datadir"),
   sample.covs
 }
 
-# Retrieves the internal files in the hdf5 binary that contain sample-level
-# metadata available in the dataset
-#
-# @param file hdf5 file in `datadar` to use to identify the internal "metal"
-#   files that correspond to sample-level metadata. You shouldn't need to
-#   change this as all hdf5 data files should carry the same metadata. This is
-#   here mainly for debugging purposes.
-# @param datadir the directory that holds the archs4 data
-# @return a vector of sample metadata names that are stored in archs4
+#' Enumerates internal files from hdf5 binary that contain sample metadata
+#'
+#' This function is intentionally not exported
+#'
+#' @importFrom rhdf5 h5ls
+#'
+#' @param file hdf5 file in `datadar` to use to identify the internal "metal"
+#'   files that correspond to sample-level metadata. You shouldn't need to
+#'   change this as all hdf5 data files should carry the same metadata. This is
+#'   here mainly for debugging purposes.
+#' @param datadir the directory that holds the archs4 data
+#' @param ... pass through
+#' @return a vector of sample metadata names that are stored in archs4
 .sample_metadata_files <- function(file = "mouse_gene",
                                    datadir = getOption("archs4.datadir"),
                                    ...) {
@@ -272,11 +276,13 @@ archs4_sample_info <- function(id,
   out
 }
 
-# Helper function to `archs4_sample_info` that retrieves the sample metadata
-# specified in the `columns` vector for a given organism.
-#
-# This function is only meant to be called within the `do({})` block in the
-# `archs4_sample_info` function, and as such does no argument checking.
+#' Helper function that implements sample-level meatdata retrieval
+#'
+#' This function is only meant to be called within the `do({})` block in the
+#' [archs4_sample_info()] function, and as such does no argument checking and
+#' is intentionally not exported.
+#'
+#' @importFrom rhdf5 h5read
 .with_sample_info <- function(x, columns, organism, sample_covariates, datadir) {
   organism <- organism[1L]
   h5g.fn <- archs4_file_path(paste0(organism, "_gene"), datadir)
@@ -310,44 +316,6 @@ archs4_sample_info <- function(id,
 
   res <- bind_cols(out)
   bind_cols(x, res)
-}
-
-# helper function to `archs4_sample_info`
-.fetch_sample_info <- function(id, type, series.all, sample.all, h5.fn,
-                               with.description = FALSE) {
-  assert_string(id)
-  assert_choice(type, c("series", "sample"))
-  assert_file_exists(h5.fn, "r")
-
-  if (type == "series") {
-    take <- which(series.all == id)
-    sample_id <- sample.all[take]
-    series_id <- id
-  } else {
-    take <- which(sample.all == id)
-    sample_id <- id
-    series_id <- series.all[take]
-  }
-
-  if (length(take)) {
-    stitle <- h5read(h5.fn, "meta/Sample_title", list(take))
-    sm <- h5read(h5.fn, "meta/Sample_source_name_ch1", list(take))
-    if (with.description) {
-      desc <- h5read(h5.fn, "meta/Sample_description", list(take))
-    }
-  } else {
-    stitle <- sm <- desc <- take <- NA_character_
-    if (type == "series") sample_id <- sm else series_id <- sm
-  }
-
-  out <- tibble(series_id = id, sample_id = sample_id, sample_h5idx = take,
-                sample_title = stitle, sample_name = sm)
-  if (with.description) {
-    out[['sample_description']] <- desc
-  }
-  out[['query_type']] <- type
-
-  out
 }
 
 #' Lists the GEO series and samples available in the human and mouse datasets
@@ -385,7 +353,7 @@ archs4_sample_table <- function(feature_type = c("all", "gene", "transcript"),
                                organism_gene)) %>%
       mutate(organism_gene = NULL, organism_transcript = NULL)
   } else {
-    res <- map_dfr(c("human", "mouse"), function(source) {
+    res <- map_dfr(archs4_sources(), function(source) {
       h5.fn <- archs4_file_path(paste(source, feature_type, sep = "_"), datadir)
       dat <- tibble(series_id = trimws(h5read(h5.fn, "meta/Sample_series_id")),
                     sample_id = trimws(h5read(h5.fn, "meta/Sample_geo_accession")),
@@ -398,4 +366,16 @@ archs4_sample_table <- function(feature_type = c("all", "gene", "transcript"),
     })
   }
   res
+}
+
+#' Lists the different sources ARCHS4 is built for
+#'
+#' We hardocde these values in a lot of places ... who knows if one day these
+#' are updated?
+#'
+#' @export
+#' @return a character vector listing the different sources (organisms) that
+#'   the ARCHS4 repository has data for.
+archs4_sources <- function() {
+  c("mouse", "human")
 }
