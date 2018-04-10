@@ -184,7 +184,8 @@ archs4_sample_covariates <- function(datadir = getOption("archs4.datadir"),
 #'   defaults to `c("Sample_title", "Sample_source_name_ch1")`. The values
 #'   in `columns` must be a subset of the values enumerated in
 #'   [archs4_sample_metadata_names()].
-#' @param sample_table the output from [archs4_sample_table()]
+#' @param sample_table the output from [archs4_sample_table()], which lists
+#'   the series_id,sample_id combinations found in the ARCHS4 repository.
 #' @param datadir the directory that holds the archs4 data
 #' @return a tibble of series_id, sample_id, sample_h5idx, sample_title, and
 #'   sample_name columns. If the query sample or series query can't be found,
@@ -201,11 +202,23 @@ archs4_sample_info <- function(id,
   if (nrow(bad.id)) {
     stop("Malformed identifiers in query: ", paste(bad.id$id, collapse = ", "))
   }
-# browser()
+
   # check sample metadata columns
   columns <- unique(columns) %>%
     assert_character(any.missing = FALSE, min.len = 1L) %>%
     assert_subset(sample_covariates$name)
+
+  # This hurts: I'm doing this to ensure that queries to this function where
+  # all `id`s are not found in the ARCHS4 repository still return a tibble
+  # of the right dimensions, but has NAs in most places
+  dummy <- tibble(
+    series_id = character(),
+    sample_id = character(),
+    query_type = character(),
+    sample_h5idx_gene = integer(),
+    sample_h5idx_transcript = integer(),
+    organism = character())
+  for (cname in columns) dummy[[cname]] <- character()
 
   series <- input %>%
     filter(type == "series") %>%
@@ -219,6 +232,7 @@ archs4_sample_info <- function(id,
     warning(nrow(bad.series), " series identifiers not found",
             immediate. = TRUE)
     series <- anti_join(series, bad.series, by = "series_id")
+    bad.series <- bind_rows(bad.series, dummy)
   }
 
   samples <- input %>%
@@ -233,18 +247,25 @@ archs4_sample_info <- function(id,
     warning(nrow(bad.samples), " sample identifiers not found",
             immediate. = TRUE)
     samples <- anti_join(samples, bad.samples, by = "sample_id")
+    bad.samples <- bind_rows(bad.samples, dummy)
   }
 
-  query <- bind_rows(series, samples) %>%
+  query <- series %>%
+    bind_rows(samples) %>%
     select(series_id, sample_id, query_type = type,
            sample_h5idx_gene, sample_h5idx_transcript, organism)
 
-  res <- query %>%
-    group_by(organism) %>%
-    do({
-      .with_sample_info(., columns, .$organism[1L], sample_covariates, datadir)
-    }) %>%
-    ungroup
+  # Only perform this if there >= 1 series or sample identifiers were found
+  if (nrow(query)) {
+    res <- query %>%
+      group_by(organism) %>%
+      do({
+        .with_sample_info(., columns, .$organism[1L], sample_covariates, datadir)
+      }) %>%
+      ungroup
+  } else {
+    res <- query
+  }
 
   out <- res %>%
     bind_rows(bad.series) %>%
