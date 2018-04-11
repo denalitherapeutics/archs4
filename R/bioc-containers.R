@@ -43,16 +43,15 @@ as.DGEList <- function(x, id,
   # Fetch feature meta information ---------------------------------------------
   finfo <- archs4_feature_info(feature_type, org, augmented = TRUE)
   finfo <- as.data.frame(finfo, stringsAsFactors = FALSE)
-  finfo <- filter(finfo, !is.na(h5idx))
   if (feature_type == "gene") {
     if (row_id == "ensembl") {
-      finfo <- filter(finfo, !is.na(ensembl_gene_id))
-      rownames(finfo) <- finfo[["ensembl_gene_id"]]
+      finfo <- filter(finfo, !is.na(gene_id))
+      rownames(finfo) <- finfo[["gene_id"]]
     } else {
-      rownames(finfo) <- finfo[["symbol"]]
+      rownames(finfo) <- finfo[["a4name"]]
     }
   } else {
-    dup.ensid <- duplicated(finfo[["ensembl_id_full"]])
+    dup.ensid <- duplicated(finfo[["ensembl_id"]])
     if (any(dup.ensid)) {
       warning("Duplicated ensembl identifiers when version is removed, ",
               "rownames maintain their versioned id")

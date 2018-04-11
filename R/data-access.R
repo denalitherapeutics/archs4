@@ -14,10 +14,11 @@
 #' @param source human or mouse
 #' @param augmented include extra gene- or transcript-level features?
 #'   Default: `TRUE`
+#' @param datadir the directory that stores the ARCHS4 data files
+#' @param ... pass through
 #' @return a tibble of information
 archs4_feature_info <- function(feature_type = c("gene", "transcript"),
                                 source = archs4_sources(), augmented = TRUE,
-                                distinct_symbol = TRUE,
                                 datadir = getOption("archs4.datadir"), ...) {
   assert_flag(augmented)
   feature_type <- match.arg(feature_type)
@@ -26,11 +27,15 @@ archs4_feature_info <- function(feature_type = c("gene", "transcript"),
   h5.fn <- archs4_file_path(paste(source, feature_type, sep = "_"))
 
   if (feature_type == "gene") {
-    ainfo <- tibble(symbol = rhdf5::h5read(h5.fn, "meta/genes"),
-                    h5idx = seq(symbol))
+    # I am using `a4name` instead of symbol, because the values stored here
+    # aren't universally/technically symbols. In the mouse dataset, the "symbol"
+    # names are all uppercase, which is a non-canonical something.
+    ainfo <- tibble(a4name = rhdf5::h5read(h5.fn, "meta/genes"),
+                    h5idx = seq(a4name))
   } else {
     ainfo <- tibble(ensembl_id_full = rhdf5::h5read(h5.fn, "meta/transcript"),
                     ensembl_id = sub("\\.\\d+$", "", ensembl_id_full),
+                    length = rhdf5::h5read(h5.fn, "meta/transcriptlength"),
                     h5idx = seq(ensembl_id_full))
   }
 
@@ -39,27 +44,21 @@ archs4_feature_info <- function(feature_type = c("gene", "transcript"),
     aug.fn <- archs4_file_path(aug.fn)
 
     if (feature_type == "gene") {
-      coltypes <- "ccicc"
-
+      join <- "a4name"
+      coltypes <- "cicccciic"
       meta <- readr::read_csv(aug.fn, col_types = coltypes)
-      meta[["join"]] <- tolower(meta[["symbol"]])
-      ainfo[["join"]] <- tolower(ainfo[["symbol"]])
-
-      if (distinct_symbol) {
-        # there are duplicate entries by symbol. here I pick one by arranging
-        # by symbol and entrez_id, this puts NA entrez_ids last
-        meta <- arrange(meta, join, entrez_id)
-        meta <- distinct(meta, join, .keep_all = TRUE)
-      }
-
-      ainfo <- left_join(select(ainfo, -symbol), meta, by = "join") %>%
-        select(-join) %>%
-        select(symbol, ensembl_gene_id, entrez_id, gene_biotype, everything())
-
     } else {
-      coltypes <- NULL
-      warning("Augmented transcript-level has not yet been generated (Issue #1)")
+      join <- "ensembl_id_full"
+      coltypes <- "cciicccccciic"
+      meta <- readr::read_csv(aug.fn, col_types = coltypes)
     }
+    # remove duplicate columns in meta table except for join column
+    meta <- meta[, !colnames(meta) %in% setdiff(colnames(ainfo), join)]
+    tmp <- left_join(ainfo, meta, by = join)
+    stopifnot(
+      nrow(tmp) == nrow(ainfo),
+      all(tmp[[join]] == ainfo[[join]]))
+    ainfo <- tmp
   }
 
   ainfo

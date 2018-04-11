@@ -6,11 +6,12 @@
 \title{Retrieves the feature (gene/transcript) information for the archs4 data}
 \usage{
 feature_info(x, feature_type = c("gene", "transcript"),
-  source = archs4_sources(), distinct_symbol = TRUE, ...)
+  source = archs4_sources(), distinct_symbol = TRUE, augmented = TRUE,
+  ...)
 
 archs4_feature_info(feature_type = c("gene", "transcript"),
-  source = archs4_sources(), distinct_symbol = TRUE,
-  datadir = getOption("archs4.datadir"))
+  source = archs4_sources(), augmented = TRUE,
+  datadir = getOption("archs4.datadir"), ...)
 }
 \arguments{
 \item{x}{an \code{Archs4Repository}}
@@ -18,6 +19,13 @@ archs4_feature_info(feature_type = c("gene", "transcript"),
 \item{feature_type}{gene or transcript?}
 
 \item{source}{human or mouse}
+
+\item{augmented}{include extra gene- or transcript-level features?
+Default: \code{TRUE}}
+
+\item{...}{pass through}
+
+\item{datadir}{the directory that stores the ARCHS4 data files}
 }
 \value{
 a tibble of information

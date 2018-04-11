@@ -3,4 +3,8 @@
 
 # Instantiate a universal Archs4Repository because it takes a little while
 # (~4s) to construct one.
-a4 <- Archs4Repository()
+if (!interactive()) {
+  # Putting it in this block, because a devtools::load_all() loads the helper
+  # functions, and I don't want that to happen.
+  a4 <- Archs4Repository()
+}

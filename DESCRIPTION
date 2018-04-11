@@ -15,6 +15,7 @@ Imports:
     rhdf5,
     tidyr
 Suggests:
+    GenomicRanges,
     rtracklayer,
     testthat,
     rmarkdown,

@@ -14,8 +14,10 @@ knitr::opts_chunk$set(
 
 # Overview
 
-This package provides utility functions to query and explore the data made
-available through the [ARCHS4 project][archs4web]. 
+This package provides utility functions to query and explore the expression
+profiling data made available through the [ARCHS4 project][archs4web], which
+is described in the following publication:
+[Massive mining of publicly available RNA-seq data from human and mouse][archs4pub]. 
 
 # Installation
 
@@ -33,6 +35,7 @@ your machine.
 
 [archs4web]: https://amp.pharm.mssm.edu/archs4/
 [archs4dl]: https://amp.pharm.mssm.edu/archs4/download.html
+[archs4pub]: https://www.nature.com/articles/s41467-018-03751-6
 
 # Usage
 

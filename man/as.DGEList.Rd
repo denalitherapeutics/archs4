@@ -24,5 +24,6 @@ a \code{DGEList} of results
 Create a DGEList for the expression data of a series or set of samples.
 }
 \examples{
-y <- as.DGEList("GSE89189", feature_type = "gene", source = "human")
+a4 <- Archs4Repository()
+y <- as.DGEList(a4, "GSE89189", feature_type = "gene")
 }
