@@ -85,6 +85,39 @@ the `$ARCHS4DIR` directory when the save dialog box pops up:
    b. [Mus_musculus.GRCm38.90.gtf.gz][ensMgtf]
 
 
+### Data Directory Validation Notes
+
+When you load the package and something isn't quite right with your data
+directory:
+
+```
+R> library(archs4)
+Note that your default archs4 data directory is NOT setup correctly
+  * Run `archs4_local_data_dir_validate()` to diagnose
+  * Refer to the ARCHS4 Data Download section of the archs4 vignette for more information
+
+Your default archs4 data directory (`getOption("archs4.datadir")`) is:
+
+  /path/to/value/of/your/getOption("archs4.datadir")
+```
+
+Running `archs4_local_data_dir_validate()` will dump message to stdout that will
+help you to fix your data directory. For instance, if you've downloaded all of
+the ARCHS4 files and have yet to create the augmented feature CSVs, you'll be
+notified of that and how to fix it:
+
+```
+R> archs4_local_data_dir_validate()
+The following computed files are missing:
+  * human_gene_augmented_info.csv.gz
+  * human_transcript_augmented_info.csv.gz
+  * mouse_gene_augmented_info.csv.gz
+  * mouse_transcript_augmented_info.csv.gz
+
+You can create them by running:
+  `create_augmented_feature_info("/Users/lianoglou/workspace/data/archs4/2018-03-26")`
+```
+
 [//]: # (References ===========================================================)
 
 [archs4dl]: https://amp.pharm.mssm.edu/archs4/download.html

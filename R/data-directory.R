@@ -60,48 +60,61 @@ archs4_local_data_dir_create <- function(datadir, stop_if_exists = TRUE) {
 #' fix it.
 #'
 #' @export
+#' @param echo echo validation diagnostic message to stdout via [base::cat()]
 #' @param datadir the path to the datadir that stores local ARCHS4 data.
 #'   Defaults to `getOption("archs4.datadir")`.
 #' @return A string that indicates "what's wrong", or `TRUE` if validation
 #'   succeeds.
-archs4_local_data_dir_validate <- function(datadir = getOption("archs4.datadir")) {
+archs4_local_data_dir_validate <- function(echo = TRUE,
+                                           datadir = getOption("archs4.datadir")) {
   msg <- character()
   if (!dir.exists(datadir)) {
     msg <- paste(
       "datadir does not exists, run ",
-      "`archs4_local_data_dir_create(datadir)`")
-    return(msg)
+      "`archs4_local_data_dir_create(datadir)`\n")
+    return(invisible(msg))
   }
+
   meta.fn <- file.path(datadir, "meta.yaml")
   if (!file.exists(meta.fn)) {
     msg <- paste(
       "meta.yaml file is missing from the data datadir, run ",
-      "`archs4_local_data_dir_create(datadir, stop_if_exists = FALSE)`")
+      "`archs4_local_data_dir_create(datadir, stop_if_exists = FALSE)`\n")
+    if (echo) cat(msg)
+    return(invisible(msg))
   }
 
   finfo <- archs4_file_info(datadir)
-  a.missing <- filter(finfo, source == "archs4" & !file_exists)
-  if (nrow(a.missing)) {
+  missing <- filter(finfo, source == "archs4" & !file_exists)
+  if (nrow(missing)) {
     msg <- paste0(
       "The following ARCHS4 files are missing, please download them:\n",
-      sprintf("  %s: %s", a.missing[["name"]], a.missing[["url"]])
-    )
+      sprintf("  %s: %s", missing[["name"]], missing[["url"]]),
+      "\n")
+    if (echo) cat(msg)
+    return(invisible(msg))
   }
 
-  e.missing <- filter(finfo, source == "ensembl"  & !file_exists)
-  if (nrow(e.missing)) {
+  missing <- filter(finfo, source == "ensembl"  & !file_exists)
+  if (nrow(missing)) {
     msg <- paste0(
       "The following ensembl files are missing, please download them:\n",
-      sprintf("  %s: %s", e.missing[["name"]], a.missing[["url"]]))
+      sprintf("  %s: %s", missing[["name"]], missing[["url"]]),
+      "\n")
+    if (echo) cat(msg)
+    return(invisible(msg))
   }
 
-  c.missing <- filter(finfo, source == "computed"  & !file_exists)
-  if (nrow(c.missing)) {
-    msg <- paste0(
-      "The following computed files are missing:\n",
-      sprintf("  %s: %s", c.missing[["name"]], a.missing[["url"]]))
-      "You can create them by running `create_augmented_feature_info(datadir)"
-
+  missing <- filter(finfo, source == "computed"  & !file_exists)
+  if (nrow(missing)) {
+    header <- "The following computed files are missing:"
+    filez <- paste(sprintf("  * %s\n", missing[["name"]]), collapse = "")
+    advice <- paste0(
+      "You can create them by running:\n",
+      "  `create_augmented_feature_info(\"", datadir, "\")`")
+    msg <- sprintf("%s\n%s\n%s\n\n", header, filez, advice)
+    if (echo) cat(msg)
+    return(invisible(msg))
   }
 
   TRUE

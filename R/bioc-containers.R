@@ -41,7 +41,7 @@ as.DGEList <- function(x, id,
   }
 
   # Fetch feature meta information ---------------------------------------------
-  finfo <- archs4_feature_info(feature_type, org, augmented = TRUE)
+  finfo <- feature_info(x, feature_type, org, augmented = TRUE)
   finfo <- as.data.frame(finfo, stringsAsFactors = FALSE)
   if (feature_type == "gene") {
     if (row_id == "ensembl") {
@@ -80,7 +80,8 @@ as.DGEList <- function(x, id,
   }
 
   counts <- local({
-    h5.fn <- archs4_file_path(paste(org, feature_type, sep = "_"))
+    key <- paste(org, feature_type, sep = "_")
+    h5.fn <- file_path(x, key)
     index <- list(NULL, si[[h5col]])
     cnts <- rhdf5::h5read(h5.fn, "data/expression", index=index)
     colnames(cnts) <- rownames(si)

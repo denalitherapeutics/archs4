@@ -60,16 +60,22 @@ create_augmented_feature_info <- function(datadir = getOption("archs4.datadir"))
     gtf.fn <- gtfs[paste0(s, "_gtf")]
     tx.fn <- local({
       key <- paste0(s, "_transcript_info")
-      fn <- archs4_file_path(key, stop_if_missing = FALSE)
+      fn <- suppressWarnings(
+        archs4_file_path(key, stop_if_missing = FALSE, na_missing = FALSE,
+                         datadir = datadir)
+      )
       sub("\\.gz$", "", fn)
     })
     gn.fn <- local({
       key <- paste0(s, "_gene_info")
-      fn <- archs4_file_path(key, stop_if_missing = FALSE)
+      fn <- suppressWarnings(
+        archs4_file_path(key, stop_if_missing = FALSE, na_missing = FALSE,
+                         datadir = datadir)
+      )
       sub("\\.gz$", "", fn)
     })
 
-    gr <- rtracklayer::import.gff(fn)
+    gr <- rtracklayer::import.gff(gtf.fn)
 
     a4.tinfo <- archs4_feature_info("transcript", s, augmented = FALSE)
     txinfo <- .augmented_transcript_info(gr, a4.tinfo)

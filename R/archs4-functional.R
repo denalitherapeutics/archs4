@@ -134,10 +134,13 @@ archs4_file_info <- function(datadir = getOption("archs4.datadir")) {
 #' @param stop_if_missing defaults to `TRUE`, which causes this function to
 #'   throw an error if the file does not exist at the expected `file_path`.
 #'   Set this to `FALSE` to simply raise a warning
+#' @param na_missing by default, we set paths to files that don't exist to
+#'   `NA`. Set this to `FALSE` to retrieve the expected path of the missing
+#'   file.
 #' @param datadir the directory that stores the ARCHS4 data files
 #' @return a named (by `key`) character vector of paths to the filesystem that
 #'   correspond to the entries in `key`.
-archs4_file_path <- function(key, stop_if_missing = TRUE,
+archs4_file_path <- function(key, stop_if_missing = TRUE,  na_missing = TRUE,
                              file_info = archs4_file_info(datadir),
                              datadir = getOption("archs4.datadir")) {
   assert_character(key, min.len = 1L)
@@ -158,8 +161,10 @@ archs4_file_path <- function(key, stop_if_missing = TRUE,
     bad.key <- unique(qmiss[["key"]])
     msg <- paste("Can not find archs4 file(s) on disk: ",
                  paste(bad.key, collapse = ", "))
-    if (stop_on_missing) stop(msg) else warning(msg)
-    query <- mutate(query, file_path = ifelse(file_exists, file_path, NA))
+    if (stop_if_missing) stop(msg) else warning(msg)
+    if (na_missing) {
+      query <- mutate(query, file_path = ifelse(file_exists, file_path, NA))
+    }
   }
 
   setNames(query[["file_path"]], query[["key"]])
