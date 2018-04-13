@@ -1,15 +1,15 @@
 #' An interface to a locally downloaded ARCHS4 dataset
 #'
 #' This instantiates an object that acts as a central broker to handle queries
-#' against the ARCHS4 dataset. You will need to download all of the files
-#' enumerated in `archs4:::archs4.files()` and save them in `datadir`.
+#' against the ARCHS4 dataset. Please refer to the vignette for instructions
+#' on how to setup a local directory to act as an Archs4Repository.
 #'
 #' @export
 #'
 #' @param datadir The directory that stores the ARCHS4 data.
 #' @return an Arhcs4DataSet object
 Archs4Repository <- function(datadir = getOption("archs4.datadir")) {
-  kosher.dir <- validate.data.dir(datadir)
+  kosher.dir <- archs4_local_data_dir_validate(datadir)
   if (!isTRUE(kosher.dir)) {
     stop(kosher.dir)
   }
@@ -34,7 +34,10 @@ Archs4Repository <- function(datadir = getOption("archs4.datadir")) {
     sample_stats = bind_rows(gstats, tstats),
     sample_covariates = archs4_sample_covariates(datadir),
     datadir = datadir)
-  class(out) <- "Archs4Repository"
+
+  # We're going to make a "remote" or "service" version of the
+  # Archs4 data in due time ...
+  class(out) <- c("LocalArchs4Repository", "Archs4Repository")
   out
 }
 
@@ -49,7 +52,7 @@ format.Archs4Repository <- function(x, ...) {
 
   out <- paste0(
     "===========================================================\n",
-    "Archs4Repository object\n",
+    paste(class(x)[1L], "object\n"),
     "-----------------------------------------------------------\n",
     "datadir: ", x$datadir, "\n\n",
     "mouse data:\n",

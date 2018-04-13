@@ -9,7 +9,7 @@
     options(pkg.opts[toset])
   }
 
-  kosher <- validate.data.dir(getOption("archs4.datadir"))
+  kosher <- archs4_local_data_dir_validate(getOption("archs4.datadir"))
   if (!isTRUE(kosher)) {
     message(kosher)
   }

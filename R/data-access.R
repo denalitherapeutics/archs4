@@ -1,3 +1,4 @@
+
 #' Retrieves the feature (gene/transcript) information for the archs4 data
 #'
 #' Only the gene symbols (`meta/genes` in gene expression hd5 file) or entrez
@@ -64,26 +65,39 @@ archs4_feature_info <- function(feature_type = c("gene", "transcript"),
   ainfo
 }
 
-archs4.files <- function() {
-  # files <- c(
-  #   human_gene = file.path('human_matrix.h5'),
-  #   mouse_gene = file.path('mouse_matrix.h5'))
+#' Retrieves a table of files that back an Archs4Repository
+#'
+#' @description
+#' A yaml iskept in the Archs4 data directory (`getOption("archs4.datadir")`)
+#' that links keys, (ie. `mouse_gene`) to the name of the file in the directory.
+#' This abstraction is introduced so that the version of these files can be
+#' updated with new downloads, and the user simply has to modify the yaml file
+#' so that they are used downstream
+#'
+#' Reference the "ARCHS4 Data Download" section in the vignette for more
+#' information.
+#'
+#' @export
+#' @param datadir the directory that stores the ARCHS4 data files
+archs4_file_info <- function(datadir = getOption("archs4.datadir")) {
+  assert_directory(datadir, "r")
+  fpath <- assert_file_exists(file.path(datadir, "meta.yaml"), "r", "yaml")
+  yml <- yaml::read_yaml(fpath)
+  finfo <- yml[["files"]]
 
-  files <- list(
-    # human
-    human_gene = list(fn = 'human_matrix.h5'),
-    human_gene_info = list(fn = 'human_gene_augmented_info.csv.gz'),
-    # human_transcript = list(fn='human_hiseq_eid_1.0.h5'),
-    human_transcript = list(fn='human_hiseq_transcript_v2.h5'),
-    human_transcript_info = list(fn='human_transcript_augmented_info.csv.gz'),
-    # mouse
-    mouse_gene = list(fn = 'mouse_matrix.h5'),
-    mouse_gene_info = list(fn = 'mouse_gene_augmented_info.csv.gz'),
-    # mouse_transcript = list(fn='mouse_hiseq_eid_1.0.h5'),
-    mouse_transcript = list(fn='mouse_hiseq_transcript_v2.h5'),
-    mouse_transcript_info = list(fn='mouse_transcript_augmented_info.csv.gz'))
+  take <- function(l, wut) {
+    val <- l[[wut]]
+    if (is.null(val)) NA_character_ else val
+  }
 
-  files
+  tibble(
+    key = names(finfo),
+    source = sapply(finfo, take, "source"),
+    name = sapply(finfo, take, "name"),
+    url = sapply(finfo, take, "url"),
+    desription = sapply(finfo, take, "description"),
+    file_path = file.path(datadir, name),
+    file_exists = file.exists(file_path))
 }
 
 #' Identify the file path on the system for specific ARCHS4 files.
@@ -93,27 +107,35 @@ archs4.files <- function() {
 #' @param what what type of file? `"human_gene"` or `"mouse_gene"`. This can
 #'   be vectorized.
 #' @return the path on the filesystem for the path asked for
-archs4_file_path <- function(what, datadir = getOption("archs4.datadir")) {
-  afiles <- archs4.files()
+archs4_file_path <- function(what, datadir = getOption("archs4.datadir"),
+                             stop_if_missing = TRUE,
+                             file_info = archs4_file_info(datadir)) {
+  assert_character(what, min.len = 1L)
   assert_directory(datadir, 'r')
-  bad.what <- setdiff(what, names(afiles))
-  if (length(bad.what)) {
+  assert_class(file_info, "data.frame")
+  assert_names(c("key", "source", "file_path"),
+               subset.of = colnames(file_info))
+  query <- tibble(key = what) %>% left_join(file_info, by = "key")
+  qbad <- filter(query, is.na(source))
+
+  if (nrow(qbad)) {
+    bad.what <- unique(qbad[["key"]])
     stop("Unknown file queries: ", paste(bad.what, collapse = ", "))
   }
 
-  afiles <- sapply(afiles, '[[', 'fn')
-  fn <- file.path(datadir, afiles[what])
-  fe <- file.exists(fn)
-  if (!all(fe)) {
-    bad.query <- unique(what[!fe])
-    stop("Can not find archs4 file(s) on disk: ",
-         paste(bad.query, collapse = ", "))
+  qmiss <- filter(query, !file_exists)
+  if (nrow(qmiss)) {
+    bad.what <- unique(qmiss[["key"]])
+    msg <- paste("Can not find archs4 file(s) on disk: ",
+                 paste(bad.what, collapse = ", "))
+    if (stop_on_missing) stop(msg) else warning(msg)
+    query <- mutate(query, file_path = ifelse(file_exists, file_path, NA))
   }
-  names(fn) <- what
-  fn
+
+  setNames(query[["file_path"]], query[["key"]])
 }
 
-#' Retrieves a tibble of sample-level covariates available in mouse and human data.
+#' Retrieves tibble of sample-level covariates available in mouse and human data.
 #'
 #' Enumerate the sample covariates available in mouse and human data.
 #' Note that the covariates available in human and mouse are the same

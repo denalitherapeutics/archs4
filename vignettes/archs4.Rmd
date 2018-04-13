@@ -1,0 +1,106 @@
+---
+title: "ARCHS4 Overview"
+author: "Steve Lianoglou"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    css: mystyles.css
+vignette: >
+  %\VignetteIndexEntry{ARCHS4 Overview}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Overview
+
+ARCHS4 is a project ([web site][archs4web] | [publication][archs4pub])
+lead by [Alex Lachmann][lachmann] from [The Ma'ayan Lab][maayanlab] which aims
+to reprocesses all of the human and mouse Illumina based (RNA) sequencing data
+from [GEO][geo] and [SRA][sra] and make it available for exploratory data
+analysis.
+
+To facilitate that, the raw sequencing data is processed through the same
+quantitation pipeline, which consists of [kallisto][kallisto] for quantitation
+and ensembl gene annotations for the transcript models. These data are then
+made available:
+
+1. as binary files [for download][archs4dl]; and
+2. via an [interactive exploratory analysis tool][archs4eda].
+
+The scope of this package, for now, is to simply make all of the gene- and
+transcript-level expression data easy queryable and retrievable to an analyst
+within R.
+
+# Installation
+
+## R Package
+
+## ARCHS4 Data Download
+
+The user will first have to create a local directory (`$ARCHS4DIR`) that will be
+used to store a number of (large) files, mostly provided by the ARCHS4
+project. In addition to the files that are downloaded from the internet, this
+directory must also have a `meta.yaml` file in it, which associates "file keys"
+to the filenames in the directory.
+
+A convenience function has been provided in this function to create this
+directory and copy over the `meta.yaml` file that is correct for the ARCHS4
+dataset released at the time of the artile's publication.
+
+```{r, eval = FALSE}
+
+```
+
+Let's assume this directory (`$ARCHS4DIR`)
+will be: `~/archs4data/v2`:
+
+```bash
+$ mkdir ~/archs4data/v2`
+```
+
+Now you will have to download the files listed below. You can simply right-click
+and select "Save Link As ..." (or similar), and choose to save these files in
+the `$ARCHS4DIR` directory when the save dialog box pops up:
+
+1. A subset of the [ARCHS4 data][archs4dl]. Note that these hdf5 files are
+   several gigabytes (6-10GB) in size, and will can take *considerable* amount
+   of time to download given your internet connection speed.:
+   
+   a. [human gene-level quantiation hdf5 file][hdf5Hgene] (v2).
+   b. [human transcript-level quantiation hdf5 file][hdf5Htx] (v2).
+   c. [mouse gene-level quantiation hdf5 file][hdf5Mgene] (v2).
+   d. [mouse transcript-level quantiation hdf5 file][hdf5Mtx] (v2).
+
+2. The human and mouse ensembl gtf (v90) files which are used in ARCHS4 data
+   processing pipeline:
+   
+   a. [Homo_sapiens.GRCh38.90.gtf.gz][ensHgtf]
+   b. [Mus_musculus.GRCm38.90.gtf.gz][ensMgtf]
+
+
+[//]: # (References ===========================================================)
+
+[archs4dl]: https://amp.pharm.mssm.edu/archs4/download.html
+[archs4eda]: https://amp.pharm.mssm.edu/archs4/data.html
+[archs4pub]: https://www.nature.com/articles/s41467-018-03751-6
+[archs4web]: https://amp.pharm.mssm.edu/archs4/
+[ensHgtf]: ftp://ftp.ensembl.org/pub/release-90/gtf/homo_sapiens/Homo_sapiens.GRCh38.90.gtf.gz
+[ensMgtf]: ftp://ftp.ensembl.org/pub/release-90/gtf/mus_musculus/Mus_musculus.GRCm38.90.gtf.gz
+[geo]: https://www.ncbi.nlm.nih.gov/geo/
+[hdf5Hgene]: https://s3.amazonaws.com/mssm-seq-matrix/human_matrix.h5
+[hdf5Htx]: https://s3.amazonaws.com/mssm-seq-matrix/human_hiseq_transcript_v2.h5
+[hdf5Mgene]: https://s3.amazonaws.com/mssm-seq-matrix/mouse_matrix.h5
+[hdf5Mtx]: https://s3.amazonaws.com/mssm-seq-matrix/mouse_hiseq_transcript_v2.h5
+[kallisto]: https://pachterlab.github.io/kallisto/about
+[lachmann]: http://www.mountsinai.org/profiles/alexander-lachmann
+[maayanlab]: http://labs.icahn.mssm.edu/maayanlab/
+[sra]: https://www.ncbi.nlm.nih.gov/sra
+
+

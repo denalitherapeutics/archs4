@@ -1,0 +1,47 @@
+files:
+  human_gene:
+    source: archs4
+    name: human_matrix.h5
+    url: https://s3.amazonaws.com/mssm-seq-matrix/human_matrix.h5
+    description: human gene-level counts
+  human_gene_info:
+    source: computed
+    name: human_gene_augmented_info.csv.gz
+    description: augmented human gene-level feature information
+  human_gtf:
+    source: ensembl
+    name: Homo_sapiens.GRCh38.90.gtf.gz
+    url: ftp://ftp.ensembl.org/pub/release-90/gtf/homo_sapiens/Homo_sapiens.GRCh38.90.gtf.gz
+    description: gtf used for human transcript annotations
+  human_transcript:
+    source: archs4
+    name: human_hiseq_transcript_v2.h5
+    url: https://s3.amazonaws.com/mssm-seq-matrix/human_hiseq_transcript_v2.h5
+    description: human transcript-level counts
+  human_transcript_info:
+    source: computed
+    name: human_transcript_augmented_info.csv.gz
+    description: augmented human transcript-level feature information
+  mouse_gene:
+    source: archs4
+    name: mouse_matrix.h5
+    url: https://s3.amazonaws.com/mssm-seq-matrix/mouse_matrix.h5
+    description: mouse gene-level counts
+  mouse_gtf:
+    source: ensembl
+    name: Mus_musculus.GRCm38.90.gtf.gz
+    url: ftp://ftp.ensembl.org/pub/release-90/gtf/mus_musculus/Mus_musculus.GRCm38.90.gtf.gz
+    description: gtf used for mouse transcript annotations
+  mouse_gene_info:
+    source: computed
+    name: mouse_gene_augmented_info.csv.gz
+    description: augmented mouse gene-level feature information
+  mouse_transcript:
+    source: archs4
+    name: mouse_hiseq_transcript_v2.h5
+    url: https://s3.amazonaws.com/mssm-seq-matrix/mouse_hiseq_transcript_v2.h5
+    description: mouse transcript-level counts
+  mouse_transcript_info:
+    source: computed
+    name: mouse_transcript_augmented_info.csv.gz
+    description: augmented mouse transcript-level feature information
