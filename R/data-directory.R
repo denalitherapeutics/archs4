@@ -24,7 +24,8 @@
 #'   if you simply want to refresh it with the default version.
 #' @return invisibly returns the path to the `meta.yaml` in the target
 #'   `datadir`
-archs4_local_data_dir_create <- function(datadir, stop_if_exists = TRUE) {
+archs4_local_data_dir_create <- function(datadir = getOption("archs4.datadir"),
+                                         stop_if_exists = TRUE) {
   assert_character(datadir)
   d.exists <- file.exists(datadir)
 
@@ -66,7 +67,8 @@ archs4_local_data_dir_create <- function(datadir, stop_if_exists = TRUE) {
 #' @return A string that indicates "what's wrong", or `TRUE` if validation
 #'   succeeds.
 archs4_local_data_dir_validate <- function(echo = TRUE,
-                                           datadir = getOption("archs4.datadir")) {
+                                           datadir = getOption("archs4.datadir")
+                                           ) {
   msg <- character()
   if (!dir.exists(datadir)) {
     msg <- paste(
