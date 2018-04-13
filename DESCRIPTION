@@ -13,7 +13,8 @@ Imports:
     purrr,
     readr,
     rhdf5,
-    tidyr
+    tidyr,
+    yaml
 Suggests:
     GenomicRanges,
     rtracklayer,

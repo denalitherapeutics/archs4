@@ -80,9 +80,29 @@ archs4_local_data_dir_validate <- function(datadir = getOption("archs4.datadir")
   }
 
   finfo <- archs4_file_info(datadir)
-  afiles <- filter(finfo, source == "archs4")
-  efiles <- filter(finfo, source == "ensembl")
-  cfiles <- filter(finfo, source == "computed")
+  a.missing <- filter(finfo, source == "archs4" & !file_exists)
+  if (nrow(a.missing)) {
+    msg <- paste0(
+      "The following ARCHS4 files are missing, please download them:\n",
+      sprintf("  %s: %s", a.missing[["name"]], a.missing[["url"]])
+    )
+  }
+
+  e.missing <- filter(finfo, source == "ensembl"  & !file_exists)
+  if (nrow(e.missing)) {
+    msg <- paste0(
+      "The following ensembl files are missing, please download them:\n",
+      sprintf("  %s: %s", e.missing[["name"]], a.missing[["url"]]))
+  }
+
+  c.missing <- filter(finfo, source == "computed"  & !file_exists)
+  if (nrow(c.missing)) {
+    msg <- paste0(
+      "The following computed files are missing:\n",
+      sprintf("  %s: %s", c.missing[["name"]], a.missing[["url"]]))
+      "You can create them by running `create_augmented_feature_info(datadir)"
+
+  }
 
   TRUE
 }

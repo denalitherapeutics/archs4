@@ -4,7 +4,10 @@
 \alias{archs4_sources}
 \title{Lists the different sources ARCHS4 is built for}
 \usage{
-archs4_sources()
+archs4_sources(datadir = getOption("archs4.datadir"))
+}
+\arguments{
+\item{datadir}{the directory that holds the archs4 data}
 }
 \value{
 a character vector listing the different sources (organisms) that

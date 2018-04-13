@@ -30,10 +30,12 @@ Archs4Repository <- function(datadir = getOption("archs4.datadir")) {
     mutate(feature_type = "transcript")
 
   out <- list(
-    sample_table = asi,
-    sample_stats = bind_rows(gstats, tstats),
+    datadir = datadir,
+    file_info = archs4_file_info(datadir),
+    meta = archs4_meta(datadir),
     sample_covariates = archs4_sample_covariates(datadir),
-    datadir = datadir)
+    sample_stats = bind_rows(gstats, tstats),
+    sample_table = asi)
 
   # We're going to make a "remote" or "service" version of the
   # Archs4 data in due time ...
@@ -113,11 +115,43 @@ feature_info <- function(x, feature_type = c("gene", "transcript"),
 }
 
 #' @export
+#' @rdname archs4_file_info
+#' @param x an `Archs4Repository`
+file_info <- function(x) {
+  assert_class(x, "Archs4Repository")
+  x[["file_info"]]
+}
+
+#' @export
+#' @rdname archs4_file_path
+#' @param x an `Archs4Repository`
+file_path <- function(x, key) {
+  assert_class(x, "Archs4Repository")
+  archs4_file_path(key, file_info = file_info(x), datadir = datadir(x))
+}
+
+#' @export
 #' @rdname archs4_sample_table
 #' @param x an `Archs4Repository`
 sample_table <- function(x, feature_type = c("gene", "transcript"), ...) {
   assert_class(x, "Archs4Repository")
   x$sample_table
+}
+
+#' @export
+#' @rdname archs4_meta
+#' @param x an `Archs4Repository`
+meta <- function(x) {
+  assert_class(x, "Archs4Repository")
+  x$meta
+}
+
+#' @export
+#' @rdname archs4_sources
+#' @param x an `Archs4Repository`
+sources <- function(x) {
+  assert_class(x, "Archs4Repository")
+  meta(x)[["sources"]]
 }
 
 #' @export
@@ -135,13 +169,6 @@ sample_info <- function(x, id,
                         columns = c("Sample_title", "Sample_source_name_ch1"),
                         ...) {
   assert_class(x, "Archs4Repository")
-
-  # check sample metadata columns
-  # scols <- archs4_sample_metadata_names(x$datadir)
-  # columns <- unique(columns)
-  # assert_character(columns, any.missing = FALSE, min.len = 1L)
-  # assert_subset(columns, scols)
-
   archs4_sample_info(id, columns, sample_table(x), sample_covariates(x),
                      datadir(x), ...)
 }

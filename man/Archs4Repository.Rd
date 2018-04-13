@@ -14,6 +14,6 @@ an Arhcs4DataSet object
 }
 \description{
 This instantiates an object that acts as a central broker to handle queries
-against the ARCHS4 dataset. You will need to download all of the files
-enumerated in \code{archs4:::archs4.files()} and save them in \code{datadir}.
+against the ARCHS4 dataset. Please refer to the vignette for instructions
+on how to setup a local directory to act as an Archs4Repository.
 }

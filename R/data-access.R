@@ -25,7 +25,8 @@ archs4_feature_info <- function(feature_type = c("gene", "transcript"),
   feature_type <- match.arg(feature_type)
   source <- match.arg(source)
 
-  h5.fn <- archs4_file_path(paste(source, feature_type, sep = "_"))
+  h5.fn <- archs4_file_path(paste(source, feature_type, sep = "_"),
+                            datadir = datadir)
 
   if (feature_type == "gene") {
     # I am using `a4name` instead of symbol, because the values stored here
@@ -42,7 +43,7 @@ archs4_feature_info <- function(feature_type = c("gene", "transcript"),
 
   if (augmented) {
     aug.fn <- paste(source, feature_type, "info", sep = "_")
-    aug.fn <- archs4_file_path(aug.fn)
+    aug.fn <- archs4_file_path(aug.fn, datadir = datadir)
 
     if (feature_type == "gene") {
       join <- "a4name"
@@ -80,9 +81,7 @@ archs4_feature_info <- function(feature_type = c("gene", "transcript"),
 #' @export
 #' @param datadir the directory that stores the ARCHS4 data files
 archs4_file_info <- function(datadir = getOption("archs4.datadir")) {
-  assert_directory(datadir, "r")
-  fpath <- assert_file_exists(file.path(datadir, "meta.yaml"), "r", "yaml")
-  yml <- yaml::read_yaml(fpath)
+  yml <- archs4_meta(datadir = datadir)
   finfo <- yml[["files"]]
 
   take <- function(l, wut) {
@@ -102,32 +101,42 @@ archs4_file_info <- function(datadir = getOption("archs4.datadir")) {
 
 #' Identify the file path on the system for specific ARCHS4 files.
 #'
+#' By default, this function will throw an error if a file does not exist
+#' upon lookup. To return the *expected* path to the, even if it does not
+#' exist on the file system, set `stop_if_missing = FALSE`.
+#'
+#'
 #' @export
 #'
-#' @param what what type of file? `"human_gene"` or `"mouse_gene"`. This can
-#'   be vectorized.
-#' @return the path on the filesystem for the path asked for
-archs4_file_path <- function(what, datadir = getOption("archs4.datadir"),
-                             stop_if_missing = TRUE,
-                             file_info = archs4_file_info(datadir)) {
-  assert_character(what, min.len = 1L)
+#' @param key the lookup key for the file, ie. `"human_gene"` or `"mouse_gene"`.
+#'   The known keys are enumerated in `archs4_file_info()[["key"]]`.
+#' @param stop_if_missing defaults to `TRUE`, which causes this function to
+#'   throw an error if the file does not exist at the expected `file_path`.
+#'   Set this to `FALSE` to simply raise a warning
+#' @param datadir the directory that stores the ARCHS4 data files
+#' @return a named (by `key`) character vector of paths to the filesystem that
+#'   correspond to the entries in `key`.
+archs4_file_path <- function(key, stop_if_missing = TRUE,
+                             file_info = archs4_file_info(datadir),
+                             datadir = getOption("archs4.datadir")) {
+  assert_character(key, min.len = 1L)
   assert_directory(datadir, 'r')
   assert_class(file_info, "data.frame")
   assert_names(c("key", "source", "file_path"),
                subset.of = colnames(file_info))
-  query <- tibble(key = what) %>% left_join(file_info, by = "key")
+  query <- tibble(key = key) %>% left_join(file_info, by = "key")
   qbad <- filter(query, is.na(source))
 
   if (nrow(qbad)) {
-    bad.what <- unique(qbad[["key"]])
-    stop("Unknown file queries: ", paste(bad.what, collapse = ", "))
+    bad.key <- unique(qbad[["key"]])
+    stop("Unknown file queries: ", paste(bad.key, collapse = ", "))
   }
 
   qmiss <- filter(query, !file_exists)
   if (nrow(qmiss)) {
-    bad.what <- unique(qmiss[["key"]])
+    bad.key <- unique(qmiss[["key"]])
     msg <- paste("Can not find archs4 file(s) on disk: ",
-                 paste(bad.what, collapse = ", "))
+                 paste(bad.key, collapse = ", "))
     if (stop_on_missing) stop(msg) else warning(msg)
     query <- mutate(query, file_path = ifelse(file_exists, file_path, NA))
   }
@@ -174,7 +183,7 @@ archs4_sample_covariates <- function(datadir = getOption("archs4.datadir"),
 .sample_metadata_files <- function(file = "mouse_gene",
                                    datadir = getOption("archs4.datadir"),
                                    ...) {
-  h5.fn <- archs4_file_path(file)
+  h5.fn <- archs4_file_path(file, datadir = datadir)
   all.files <- as_tibble(h5ls(h5.fn))
   all.files[["idim"]] <- suppressWarnings(as.integer(all.files[["dim"]]))
 
@@ -306,8 +315,8 @@ archs4_sample_info <- function(id,
 #' @importFrom rhdf5 h5read
 .with_sample_info <- function(x, columns, organism, sample_covariates, datadir) {
   organism <- organism[1L]
-  h5g.fn <- archs4_file_path(paste0(organism, "_gene"), datadir)
-  h5t.fn <- archs4_file_path(paste0(organism, "_transcript"), datadir)
+  h5g.fn <- archs4_file_path(paste0(organism, "_gene"), datadir = datadir)
+  h5t.fn <- archs4_file_path(paste0(organism, "_transcript"), datadir = datadir)
 
   out <- sapply(columns, function(i) {
     rep(NA_character_, nrow(x))
@@ -375,7 +384,8 @@ archs4_sample_table <- function(feature_type = c("all", "gene", "transcript"),
       mutate(organism_gene = NULL, organism_transcript = NULL)
   } else {
     res <- map_dfr(archs4_sources(), function(source) {
-      h5.fn <- archs4_file_path(paste(source, feature_type, sep = "_"), datadir)
+      fkey <- paste(source, feature_type, sep = "_")
+      h5.fn <- archs4_file_path(fkey, datadir = datadir)
       dat <- tibble(series_id = trimws(h5read(h5.fn, "meta/Sample_series_id")),
                     sample_id = trimws(h5read(h5.fn, "meta/Sample_geo_accession")),
                     sample_h5idx = seq(sample_id),
@@ -395,8 +405,27 @@ archs4_sample_table <- function(feature_type = c("all", "gene", "transcript"),
 #' are updated?
 #'
 #' @export
+#' @param datadir the directory that holds the archs4 data
 #' @return a character vector listing the different sources (organisms) that
 #'   the ARCHS4 repository has data for.
-archs4_sources <- function() {
-  c("mouse", "human")
+archs4_sources <- function(datadir = getOption("archs4.datadir")) {
+  archs4_meta(datadir)[["sources"]]
+}
+
+#' Retrieves the meta information associated with an ARCHS4 datadir
+#'
+#' @export
+#' @importFrom yaml read_yaml
+#'
+#' @param datadir the directory that holds the archs4 data
+#' @return a list-representation of the `meta.yaml` file
+archs4_meta <- function(datadir = getOption("archs4.datadir")) {
+  assert_directory(datadir, "r")
+  fpath <- assert_file_exists(file.path(datadir, "meta.yaml"), "r", "yaml")
+  yml <- yaml::read_yaml(fpath)
+
+  # doing some validation on this file
+  assert_character(yml[["sources"]])
+  assert_list(yml[["files"]])
+  yml
 }

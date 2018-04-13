@@ -1,3 +1,6 @@
+sources:
+  - mouse
+  - human
 files:
   human_gene:
     source: archs4

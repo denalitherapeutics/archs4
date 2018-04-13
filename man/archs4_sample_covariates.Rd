@@ -3,7 +3,7 @@
 \name{sample_covariates}
 \alias{sample_covariates}
 \alias{archs4_sample_covariates}
-\title{Retrieves a tibble of sample-level covariates available in mouse and human data.}
+\title{Retrieves tibble of sample-level covariates available in mouse and human data.}
 \usage{
 sample_covariates(x, ...)
 
