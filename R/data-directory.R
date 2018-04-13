@@ -72,6 +72,7 @@ archs4_local_data_dir_validate <- function(echo = TRUE,
     msg <- paste(
       "datadir does not exists, run ",
       "`archs4_local_data_dir_create(datadir)`\n")
+    if (echo) cat(msg)
     return(invisible(msg))
   }
 
