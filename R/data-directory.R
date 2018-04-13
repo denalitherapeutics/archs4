@@ -47,7 +47,7 @@ archs4_local_data_dir_create <- function(datadir = getOption("archs4.datadir"),
       }
     }
   } else {
-    parent.dir <- assert_datadir(dirname(datadir), "w")
+    parent.dir <- assert_directory(dirname(datadir), "w")
     dir.create(datadir)
   }
   file.copy(meta.in, meta.to)
