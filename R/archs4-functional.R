@@ -1,3 +1,25 @@
+# These functions define a "high-level" interface to working with the data
+# downloaded into an ARCHS4 Data Directory. They are the workhorses of this
+# package.
+#
+# Although users can interact with the ARCHS4 data directory "directly" using
+# these functions, most will find it more convenient to interact with ARCHS4
+# using an `Archs4Repository`. Many of the functions here are also available
+# against an `Archs4Repository` object, and are named by stripping the archs4_
+# prefix here.
+#
+# For instance, the following are equivalent:
+#
+#     R> archs4_feature_info(datadir)
+#
+#   and
+#
+#     R> a4 <- Archs4Repository(datadir)
+#     R> feature_info(a4)
+#
+# Interacting with these data via the `Archs4Repository` should also better
+# future-proof your code.
+
 
 #' Retrieves the feature (gene/transcript) information for the archs4 data
 #'
@@ -18,15 +40,15 @@
 #' @param datadir the directory that stores the ARCHS4 data files
 #' @param ... pass through
 #' @return a tibble of information
-archs4_feature_info <- function(feature_type = c("gene", "transcript"),
-                                source = archs4_sources(), augmented = TRUE,
+archs4_feature_info <- function(feature_type = "gene", source = "human",
+                                augmented = TRUE,
                                 datadir = getOption("archs4.datadir"), ...) {
+  assert_choice(feature_type, c("gene", "transcript"))
+  assert_choice(source, archs4_sources(datadir))
   assert_flag(augmented)
-  feature_type <- match.arg(feature_type)
-  source <- match.arg(source)
 
-  h5.fn <- archs4_file_path(paste(source, feature_type, sep = "_"),
-                            datadir = datadir)
+  fkey <- paste(source, feature_type, sep = "_")
+  h5.fn <- archs4_file_path(fkey, datadir = datadir)
 
   if (feature_type == "gene") {
     # I am using `a4name` instead of symbol, because the values stored here
@@ -105,11 +127,10 @@ archs4_file_info <- function(datadir = getOption("archs4.datadir")) {
 #' upon lookup. To return the *expected* path to the, even if it does not
 #' exist on the file system, set `stop_if_missing = FALSE`.
 #'
-#'
 #' @export
 #'
 #' @param key the lookup key for the file, ie. `"human_gene"` or `"mouse_gene"`.
-#'   The known keys are enumerated in `archs4_file_info()[["key"]]`.
+#'   The known keys are enumerated in `archs4_file_info()$keyb`.
 #' @param stop_if_missing defaults to `TRUE`, which causes this function to
 #'   throw an error if the file does not exist at the expected `file_path`.
 #'   Set this to `FALSE` to simply raise a warning

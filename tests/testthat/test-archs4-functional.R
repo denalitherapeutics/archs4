@@ -1,4 +1,4 @@
-context("Data Accessors")
+context("ARCHS4 Functional Interface")
 
 if (!exists("a4")) {
   # This is loaded by the testthat/helper-all.R script when testthat is running
@@ -11,17 +11,31 @@ test_that("feature-level metadata retrieval works", {
   # retrieve gene-level feature information with unique symbols
   mg <- feature_info(a4, feature_type = "gene", source = "mouse",
                      distinct_symbol = TRUE)
-  expect_true(all(substr(mg$ensembl_gene_id, 1, 7) == "ENSMUSG"))
+
+  # all a4name entries should be non NA and nchar() >= 1
+  expect_true(all(nchar(mg$a4name) >= 1))
+  expect_true(all(!is.na(mg$a4name)))
   expect_is(mg$h5idx, "integer")
   expect_true(all(!is.na(mg$h5idx)))
   # no duplicated symbols
   expect_equal(sum(duplicated(mg$symbol) & !is.na(mg$symbol)), 0)
 
+  # There are some entries that we couldn't get identifiers for, but the ones
+  # we got should all be prefixed with the mouse prefix.
+  mg.ens <- filter(mg, !is.na(gene_id))
+  expect_true(all(substr(mg.ens$gene_id, 1, 7) == "ENSMUSG"))
+
+
   hg <- feature_info(a4, feature_type = "gene", source = "human",
                      distinct_symbol = TRUE)
-  expect_true(all(substr(hg$ensembl_gene_id, 1, 4) == "ENSG"))
+  # all a4name entries should be non NA and nchar() >= 1
+  expect_true(all(nchar(hg$a4name) >= 1))
+  expect_true(all(!is.na(hg$a4name)))
   expect_is(hg$h5idx, "integer")
   expect_true(all(!is.na(hg$h5idx)))
   # no duplicated symbols
   expect_equal(sum(duplicated(hg$symbol) & !is.na(hg$symbol)), 0)
+
+  hg.ens <- filter(hg, !is.na(gene_id))
+  expect_true(all(substr(hg.ens$gene_id, 1, 4) == "ENSG"))
 })

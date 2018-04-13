@@ -37,8 +37,8 @@ Archs4Repository <- function(datadir = getOption("archs4.datadir")) {
     sample_stats = bind_rows(gstats, tstats),
     sample_table = asi)
 
-  # We're going to make a "remote" or "service" version of the
-  # Archs4 data in due time ...
+  # You *know* we're going to make a "remote" or "service" version of an
+  # Archs4Repository, in due time ...
   class(out) <- c("LocalArchs4Repository", "Archs4Repository")
   out
 }
@@ -104,14 +104,12 @@ datadir <- function(x, ...) {
 #' @export
 #' @rdname archs4_feature_info
 #' @param x an `Archs4Repository`
-feature_info <- function(x, feature_type = c("gene", "transcript"),
-                         source = archs4_sources(),
-                         distinct_symbol = TRUE, augmented = TRUE, ...) {
+feature_info <- function(x, feature_type = "gene", source = "human",
+                         augmented = TRUE, ...) {
   assert_class(x, "Archs4Repository")
-  feature_type <- match.arg(feature_type)
-  source <- match.arg(source)
-  archs4_feature_info(feature_type, source, distinct_symbol, augmented,
-                      datadir(x), ...)
+  assert_choice(feature_type, c("gene", "transcript"))
+  assert_choice(source, sources(x))
+  archs4_feature_info(feature_type, source, augmented, datadir(x), ...)
 }
 
 #' @export
