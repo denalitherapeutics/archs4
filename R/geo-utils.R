@@ -63,7 +63,7 @@ lookup_biosamples <- function(x, retmax = 1e5 - 1L) {
                         parsed = FALSE) %>%
     xml2::read_xml() %>%
     xml2::xml_children() %>%
-    map(.f = function(x) {
+    purrr::map(.f = function(x) {
       tibble::data_frame(
         Title = xml2::xml_find_first(
           x, 
