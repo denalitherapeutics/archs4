@@ -27,7 +27,7 @@ mouse and human data. These data files need to all be collated into the
 directory specified by `getOption("archs4.datadir")` (`~/.archs4data`, by
 default).
 
-**NOTE:** If you are developing this package and builidng the documentation, the
+**NOTE:** If you are developing this package and building the documentation, the
 build happens in a vanilla R workspace, which won't set your R's `options`
 if they are in your `~/.Rprofile`. In this case, symlink your archs4 data
 directory such that `~/.archs4data` points to the directory you picked on
@@ -69,7 +69,7 @@ below. This will create a `DGEList` of 27,024 genes across 37 samples in about
 yg <- as.DGEList(a4, "GSE89189", feature_type = "gene")
 ```
 
-The following command retrieives the 178,135 transcript level counts for this
+The following command retrieves the 178,135 transcript level counts for this
 experiment in about 1.5 seconds, as well:
 
 ```{r, eval = FALSE}
