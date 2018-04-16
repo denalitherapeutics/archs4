@@ -198,6 +198,7 @@ archs4_sample_covariates <- function(datadir = getOption("archs4.datadir"),
 #' This function is intentionally not exported
 #'
 #' @importFrom rhdf5 h5ls
+#' @noRd
 #'
 #' @param file hdf5 file in `datadar` to use to identify the internal "metal"
 #'   files that correspond to sample-level metadata. You shouldn't need to
@@ -337,6 +338,8 @@ archs4_sample_info <- function(id,
 #' This function is only meant to be called within the `do({})` block in the
 #' [archs4_sample_info()] function, and as such does no argument checking and
 #' is intentionally not exported.
+#'
+#' @noRd
 #'
 #' @importFrom rhdf5 h5read
 .with_sample_info <- function(x, columns, organism, sample_covariates, datadir) {

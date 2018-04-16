@@ -5,12 +5,11 @@
 \alias{archs4_feature_info}
 \title{Retrieves the feature (gene/transcript) information for the archs4 data}
 \usage{
-feature_info(x, feature_type = c("gene", "transcript"), source = sources(x),
-  augmented = TRUE, ...)
+feature_info(x, feature_type = "gene", source = "human", augmented = TRUE,
+  ...)
 
-archs4_feature_info(feature_type = c("gene", "transcript"),
-  source = archs4_sources(), augmented = TRUE,
-  datadir = getOption("archs4.datadir"), ...)
+archs4_feature_info(feature_type = "gene", source = "human",
+  augmented = TRUE, datadir = getOption("archs4.datadir"), ...)
 }
 \arguments{
 \item{x}{an \code{Archs4Repository}}

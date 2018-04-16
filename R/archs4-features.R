@@ -91,17 +91,9 @@ create_augmented_feature_info <- function(datadir = getOption("archs4.datadir"))
 
 }
 
-.load_gtf <- function(fregex, datadir) {
-  assert_string(fregex)
-  assert_directory(datadir, "r")
-  fn <- dir(datadir, fregex, full.names = TRUE, ignore.case = TRUE)
-  if (length(fn) != 1L) {
-    stop("The gtf file regex didn't pick up a unique gtf to parse: ", fregex)
-  }
-
-}
-
 #' Helper function that creats augmented transcript information file.
+#'
+#' @noRd
 #'
 #' @param gr a GRanges object from .load_gtf, we assume this is enembl gtfs
 #' @param a4.tinfo The "raw" information that the ARCHS4 data stores for its
@@ -146,9 +138,14 @@ create_augmented_feature_info <- function(datadir = getOption("archs4.datadir"))
   out
 }
 
-# @param x a GRanges object from .load_gtf, we assume this is enembl gtfs
-# @param a4.tinfo result from
-#   `archs4_feature_info("gene", ..., augmented = FALSE)`
+#' Helper function to create augmented gene-level metadata.
+#'
+#' @noRd
+#'
+#' @param x a GRanges object from .load_gtf, we assume this is enembl gtfs
+#' @param a4.ginfo result from
+#'   `archs4_feature_info("gene", ..., augmented = FALSE)`
+#' @return a decorated `a4.ginfo` table.
 .augmented_gene_info <- function(gr, a4.ginfo) {
   requireNamespace("GenomicRanges", quietly = TRUE)
   a4.ginfo <- mutate(a4.ginfo, join = tolower(a4name))

@@ -4,9 +4,12 @@
 \alias{archs4_local_data_dir_validate}
 \title{Check "the health" of a local ARCHS4 data datadir}
 \usage{
-archs4_local_data_dir_validate(datadir = getOption("archs4.datadir"))
+archs4_local_data_dir_validate(echo = TRUE,
+  datadir = getOption("archs4.datadir"))
 }
 \arguments{
+\item{echo}{echo validation diagnostic message to stdout via \code{\link[base:cat]{base::cat()}}}
+
 \item{datadir}{the path to the datadir that stores local ARCHS4 data.
 Defaults to \code{getOption("archs4.datadir")}.}
 }

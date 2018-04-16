@@ -4,7 +4,8 @@
 \alias{archs4_local_data_dir_create}
 \title{Initialize a local datadir to act as an ARCHS4 data datadir}
 \usage{
-archs4_local_data_dir_create(datadir, stop_if_exists = TRUE)
+archs4_local_data_dir_create(datadir = getOption("archs4.datadir"),
+  stop_if_exists = TRUE)
 }
 \arguments{
 \item{datadir}{the path to the datadir to create (or initialize) as an

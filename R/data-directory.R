@@ -98,7 +98,7 @@ archs4_local_data_dir_validate <- function(echo = TRUE,
     return(invisible(msg))
   }
 
-  missing <- filter(finfo, source == "ensembl"  & !file_exists)
+  missing <- filter(finfo, source == "ensembl" & !file_exists)
   if (nrow(missing)) {
     msg <- paste0(
       "The following ensembl files are missing, please download them:\n",
