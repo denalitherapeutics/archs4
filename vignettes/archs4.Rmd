@@ -35,7 +35,7 @@ made available:
 2. via an [interactive exploratory analysis tool][archs4eda].
 
 The scope of this package, for now, is to simply make all of the gene- and
-transcript-level expression data easy queryable and retrievable to an analyst
+transcript-level expression data easily queryable and retrievable to an analyst
 within R.
 
 # Installation
