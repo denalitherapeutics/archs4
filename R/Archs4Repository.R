@@ -9,9 +9,9 @@
 #' @param datadir The directory that stores the ARCHS4 data.
 #' @return an Arhcs4DataSet object
 Archs4Repository <- function(datadir = getOption("archs4.datadir")) {
-  kosher.dir <- archs4_local_data_dir_validate(datadir)
+  kosher.dir <- archs4_local_data_dir_validate(echo = FALSE, datadir)
   if (!isTRUE(kosher.dir)) {
-    stop(kosher.dir)
+    stop(kosher.dir, call. = FALSE)
   }
 
   asi <- archs4_sample_table(datadir = datadir)

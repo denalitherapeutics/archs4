@@ -10,7 +10,7 @@ Installation
 
 The user will first have to download the four gene and transcript level hdf5 data files made available on the [ARCHS4 downloads](https://amp.pharm.mssm.edu/archs4/download.html) page for the mouse and human data. These data files need to all be collated into the directory specified by `getOption("archs4.datadir")` (`~/.archs4data`, by default).
 
-**NOTE:** If you are developing this package and builidng the documentation, the build happens in a vanilla R workspace, which won't set your R's `options` if they are in your `~/.Rprofile`. In this case, symlink your archs4 data directory such that `~/.archs4data` points to the directory you picked on your machine.
+**NOTE:** If you are developing this package and building the documentation, the build happens in a vanilla R workspace, which won't set your R's `options` if they are in your `~/.Rprofile`. In this case, symlink your archs4 data directory such that `~/.archs4data` points to the directory you picked on your machine.
 
 Usage
 =====
@@ -47,7 +47,7 @@ You can get a `DGEList` of gene-level counts for that study using the command be
 yg <- as.DGEList(a4, "GSE89189", feature_type = "gene")
 ```
 
-The following command retrieives the 178,135 transcript level counts for this experiment in about 1.5 seconds, as well:
+The following command retrieves the 178,135 transcript level counts for this experiment in about 1.5 seconds, as well:
 
 ``` r
 yt <- as.DGEList(a4, "GSE89189", feature_type = "transcript")
