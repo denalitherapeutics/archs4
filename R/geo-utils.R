@@ -19,29 +19,31 @@ geo_id_type <- function(id) {
 }
 
 #' Query NCBI GEO through its REST interface
-#' 
-#' @param acc Scalar character, GEO identifier for a series (GSE), a sample
-#' (GSM) or a platform (GPL).
-#' @param validate Scalar boolean, validate the retrieved xml file against
-#' NCBI's schema?
+#'
+#' @export
 #' @importFrom xml2 read_xml xml_validate xml_ns_strip xml_contents xml_find_all
-#' xml_text
-#' @return xml2::xml_document object
+#'   xml_text
 #' @source https://www.ncbi.nlm.nih.gov/geo/info/download.html
-#' @examples 
+#'
+#' @param acc Scalar character, GEO identifier for a series (GSE), a sample
+#'   (GSM) or a platform (GPL).
+#' @param validate Scalar boolean, validate the retrieved xml file against
+#'   NCBI's schema?
+#' @return xml2::xml_document object
+#' @examples
 #' query_geo("GSE109171")
 query_geo <- function(accession, target = c("self", "gsm", "gpl", "gse", "all"),
                       validate = FALSE, verbose = FALSE) {
   target = match.arg(target)
   geo_url <- sprintf(
-    paste0("https://www.ncbi.nlm.nih.gov/geo/query/", 
+    paste0("https://www.ncbi.nlm.nih.gov/geo/query/",
            "acc.cgi?acc=%s&targ=%s&view=%s&form=%s"),
     accession, target, "full", "xml")
   if (verbose) {
     message(sprintf("Retrieving %s", geo_url))
   }
   res <- xml2::read_xml(geo_url)
-  
+
   if (validate) {
     schema_url <- strsplit(xml2::xml_attr(res, attr = "schemaLocation"),
                            split = " ", fixed = TRUE)[[1]][-1]
@@ -55,19 +57,19 @@ query_geo <- function(accession, target = c("self", "gsm", "gpl", "gse", "all"),
 
 
 #' Retrieve information about a GEO series
-#' 
+#'
 #' Queries NCBI GEO's REST interface to retrieve e.g. title, summary and the
 #' list of samples for a GEO series.
-#' 
+#'
+#' @export
+#' @importFrom xml2 xml_contents xml_find_all xml_text
+#'
 #' @param acc Scalar character, GEO series identifier e.g. GSE109171
 #' @param fields Character vector specifying which fields to extract from the
-#' XML file returned by GEO
-#' @param ... Additional arguments passed on to the \code{query_query} function.
-#' @importFrom xml2 xml_contents xml_find_all xml_text
-#' @importFrom magrittr %>% 
-#' @return List the requested \code{fields}
-#' @export
-#' @examples 
+#'   XML file returned by GEO
+#' @param ... Additional arguments passed on to the `query_geo` function.
+#' @return List the requested `fields`
+#' @examples
 #' lookup_gse("GSE109171")
 lookup_gse <- function(acc,
                        fields = c("Accession", "Title", "Summary",
@@ -99,29 +101,27 @@ lookup_gse <- function(acc,
 
 #' Retrieve sample annotations from NCBI's Biosample database
 #'
-#' This function uses the \code{rentrez} package to retrieve sample annotations
+#' This function uses the `rentrez` package to retrieve sample annotations
 #' from NCBI's Biosample database.
-#' @param x Character vector of sample identifiers to search the Biosample
-#' database for. Typically either \code{BioSample (SAMN)}, \code{SRA (SRS)} or
-#' \code{GEO (GSM)} accession numbers.
-#' @param retmax Scalar integer, the maximum number of (total) matches to
-#' retrieve from Entrez. See
-#' \url{https://www.ncbi.nlm.nih.gov/books/NBK25499/#_chapter4_ESearch_}
-#' for details. The number of records that can be retrieved in one query
-#' must be < 100,000.
-#' @return A tbl_df data.frame with sample annotations. Column names and numbers
-#' vary depending on the attributes available in the Biosample database.
+#'
 #' @export
-#' @importFrom magrittr "%>%" 
 #' @importFrom rentrez entrez_search entrez_fetch
 #' @importFrom xml2 read_xml xml_find_all xml_text xml_attr xml_find_first
-#' xml_children
-#' @importFrom purrr map
+#'   xml_children
 #' @importFrom tibble set_tidy_names
-#' @importFrom tidyr unnest spread
-#' @importFrom dplyr rename rename_all
 #' @importFrom readr type_convert cols
 #' @source https://www.ncbi.nlm.nih.gov/books/NBK25499/#_chapter4_ESearch_
+#'
+#' @param x Character vector of sample identifiers to search the Biosample
+#'   database for. Typically either `BioSample (SAMN)`, `SRA (SRS)` or
+#'   `GEO (GSM)` accession numbers.
+#' @param retmax Scalar integer, the maximum number of (total) matches to
+#' retrieve from Entrez. See
+#'   \url{https://www.ncbi.nlm.nih.gov/books/NBK25499/#_chapter4_ESearch_}
+#'   for details. The number of records that can be retrieved in one query
+#'   must be < 100,000.
+#' @return A tbl_df data.frame with sample annotations. Column names and numbers
+#'   vary depending on the attributes available in the Biosample database.
 #' @examples
 #' if (interactive()) {
 #'  # BioSample identifiers
@@ -133,7 +133,7 @@ lookup_gse <- function(acc,
 #' }
 lookup_biosamples <- function(x, retmax = 1e5 - 1L) {
   if (retmax >= 1e5) stop("retmax must be < 100,000")
-  
+
   search_results <- rentrez::entrez_search(
     db = "biosample", retmax = retmax,
     term = sprintf("%s[ACCN]", paste(x, collapse = "[ACCN] OR ")))
@@ -145,35 +145,35 @@ lookup_biosamples <- function(x, retmax = 1e5 - 1L) {
     purrr::map(.f = function(x) {
       tibble::data_frame(
         Title = xml2::xml_find_first(
-          x, 
+          x,
           xpath = ".//Description/Title") %>%
           xml2::xml_text(trim = TRUE),
         OrganismName = xml2::xml_find_first(
-          x, 
+          x,
           xpath = ".//Description/Organism/OrganismName") %>%
           xml2::xml_text(trim = TRUE),
         taxonomy_id = xml2::xml_find_all(
-          x, 
+          x,
           xpath = ".//Description/Organism") %>%
           xml2::xml_attr("taxonomy_id"),
         BioSample = xml2::xml_find_first(
-          x, 
+          x,
           xpath = './/Ids/Id[@db="BioSample"]') %>%
           xml2::xml_text(trim = TRUE),
         SRA = xml2::xml_find_first(
-          x, 
+          x,
           xpath = './/Ids/Id[@db="SRA"]') %>%
           xml2::xml_text(trim = TRUE),
         GEO = xml2::xml_find_first(
-          x, 
+          x,
           xpath = './/Ids/Id[@db="GEO"]') %>%
           xml2::xml_text(trim = TRUE),
         value = xml2::xml_find_all(
-          x, 
+          x,
           xpath = ".//Attribute") %>%
           xml2::xml_text(trim = TRUE),
         key = xml2::xml_find_all(
-          x, 
+          x,
           xpath = ".//Attribute") %>%
           xml2::xml_attr("attribute_name")
       )

@@ -4,6 +4,7 @@ Title: Wrappers to query and extract ARCHS4 data
 Version: 0.1.0
 Authors@R: c(
     person("Steve", "Lianoglou", , "lianoglou@dnli.com", c("aut", "cre")),
+    person("Thomas", "Sandmann", , "sandmann@dnli.com", c("aut")),
     person("Denali Therapeutics", role = c("cph", "fnd"))
     )
 Description: An R interface to query and extract data from the ARCHS4 resource.
@@ -12,8 +13,11 @@ Imports:
     dplyr,
     purrr,
     readr,
+    rentrez,
     rhdf5,
+    tibble,
     tidyr,
+    xml2,
     yaml
 Suggests:
     GenomicRanges,
