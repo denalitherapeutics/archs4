@@ -231,10 +231,52 @@ archs4_sample_covariates <- function(datadir = getOption("archs4.datadir"),
   mutate(sample.meta, h5name = paste(group, name, sep = "/"))
 }
 
+#' Checks which samples in a series are present/absent.
+#'
+#' Due to download or alignment issues, the ARCHS4 data processing pipeline may
+#' not include all of the samples included in a particular GEO series. This
+#' function will return a table with an `in_archs4` columns that indicates
+#' whether or not a sample from a particular series is present in ARCHS4.
+#'
+#' @export
+#'
+#' @param id a single GEO series id, ie. `"GSEnnnnn"`
+#' @param sample_table the output from [archs4_sample_table()], which lists
+#'   the series_id,sample_id combinations found in the ARCHS4 repository.
+#' @param datadir the directory that holds the archs4 data
+#' @return a tibble of information for a series.
+#' @examples
+#' info <- archs4_series_status("GSE89189")
+archs4_series_status <- function(id,
+                                 sample_table = archs4_sample_table(datadir = datadir),
+                                 datadir = getOption("archs4.datadir"),
+                                 ...) {
+  assert_string(id)
+  if (geo_id_type(id)[["type"]] != "series") {
+    stop("A GEO series id is required (ie. \"GSEnnnnn\")")
+  }
+
+  gq <- lookup_gse(id)
+  geo <- tibble(series_id = id, sample_id = gq[["sample"]])
+
+  archs <- filter(sample_table, series_id == id)
+  archs <- transmute(archs, sample_id, in_archs4 = TRUE)
+
+  out <- left_join(geo, archs, by = "sample_id")
+  out[["in_archs4"]] <- !is.na(out[["in_archs4"]])
+  out
+}
+
+
 #' Retrieves information for samples by GSE series or sample IDs
 #'
+#' @description
 #' Fetch a tibble of series and sample information by querying the arcsh4
 #' dataset by GEO sample (GSE) or sample (GSM) ids.
+#'
+#' For each unique GEO series identifier (`"GSEnnnn"`), we will check if the
+#' ARCHS4 dataset is missing any of its samples when `check_missing_samples`
+#' is set to `TRUE` (default).
 #'
 #' @export
 #'
@@ -245,16 +287,25 @@ archs4_sample_covariates <- function(datadir = getOption("archs4.datadir"),
 #'   [archs4_sample_metadata_names()].
 #' @param sample_table the output from [archs4_sample_table()], which lists
 #'   the series_id,sample_id combinations found in the ARCHS4 repository.
+#' @param sample_covaraites the names of the sample covariates that are stored
+#'   in the ARCHS4 Dataset, available via [archs4_sample_covariates()].
+#' @param check_missing_samples When `TRUE` (the default), this function will
+#'   check every unique GEO series identifier (`"GSEnnnn"`) for missing samples
+#'   by using an NCBI Rest service via a call to [archs4_series_status()],
+#'   and [lookup_gse()].
 #' @param datadir the directory that holds the archs4 data
 #' @return a tibble of series_id, sample_id, sample_h5idx, sample_title, and
 #'   sample_name columns. If the query sample or series query can't be found,
 #'   then there will be an `NA` value for these columns. The `query_type` column
 #'   will indicat whether the row was returned from querying by series or by
 #'   sample.
+#' @examples
+#' si <- archs4_sample_info("GSE52564") # ben barres transcriptome db ...
 archs4_sample_info <- function(id,
                                columns = c("Sample_title", "Sample_source_name_ch1"),
                                sample_table = archs4_sample_table(datadir = datadir),
                                sample_covariates = archs4_sample_covariates(datadir),
+                               check_missing_samples = TRUE,
                                datadir = getOption("archs4.datadir"), ...) {
   input <- geo_id_type(id)
   bad.id <- filter(input, type == "unknown")
@@ -292,6 +343,27 @@ archs4_sample_info <- function(id,
             immediate. = TRUE)
     series <- anti_join(series, bad.series, by = "series_id")
     bad.series <- bind_rows(bad.series, dummy)
+  }
+
+  with.missing.samples <- NULL
+  if (check_missing_samples && nrow(series)) {
+    for (s in unique(series[["series_id"]])) {
+      check <- archs4_series_status(s, sample_table = sample_table,
+                                    datadir = datadir)
+      missing <- filter(check, !in_archs4)
+      if (nrow(missing)) {
+        msg <- paste(
+          sprintf("The %s series has %d missing samples in ARCHS4:\n    *",
+                  s, nrow(missing)),
+          paste(missing[["sample_id"]], collapse ="\n    * "),
+          "\n")
+        warning(msg, immediate. = TRUE)
+        # TODO: Add `with_missing_samples` parameter, or does it make sense
+        #       to just automatically append these?
+        # it hurts me to do this:
+        with.missing.samples <- bind_rows(with.missing.samples, missing)
+      }
+    }
   }
 
   samples <- input %>%

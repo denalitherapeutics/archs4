@@ -137,6 +137,14 @@ sample_table <- function(x, feature_type = c("gene", "transcript"), ...) {
 }
 
 #' @export
+#' @rdname archs4_series_status
+#' @param x an `Archs4Repository`
+series_status <- function(x, id, ...) {
+  assert_class(x, "Archs4Repository")
+  archs4_series_status(id, sample_table = sample_table(x), datadir = datadir(x))
+}
+
+#' @export
 #' @rdname archs4_meta
 #' @param x an `Archs4Repository`
 meta <- function(x) {
@@ -165,9 +173,9 @@ sample_covariates <- function(x, ...) {
 #' @param x an `Archs4Repository`
 sample_info <- function(x, id,
                         columns = c("Sample_title", "Sample_source_name_ch1"),
-                        ...) {
+                        check_missing_samples = TRUE, ...) {
   assert_class(x, "Archs4Repository")
   archs4_sample_info(id, columns, sample_table(x), sample_covariates(x),
-                     datadir(x), ...)
+                     check_missing_samples, datadir(x), ...)
 }
 

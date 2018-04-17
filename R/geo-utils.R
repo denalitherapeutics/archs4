@@ -18,6 +18,7 @@ geo_id_type <- function(id) {
   tibble(id = id, type = type)
 }
 
+
 #' Query NCBI GEO through its REST interface
 #'
 #' @export
@@ -54,7 +55,6 @@ query_geo <- function(accession, target = c("self", "gsm", "gpl", "gse", "all"),
   }
   return(res)
 }
-
 
 #' Retrieve information about a GEO series
 #'

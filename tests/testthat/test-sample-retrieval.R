@@ -8,8 +8,34 @@ if (!exists("a4")) {
 }
 
 
+test_that("(archs4_)sample_status identifies samples missing from GEO series", {
+  missing.none <- "GSE52564" # The Ben Barres dataset has all samples in ARCHS4
+  missing.some <- "GSE89189" # The blurton jones iPSC paper is missing some
+
+  ss.none <- series_status(a4, missing.none)
+  expect_true(all(ss.none[["in_archs4"]]))
+
+  ss.some <- series_status(a4, missing.some)
+  expect_true(!all(ss.some[["in_archs4"]]))
+})
+
+test_that("(archs4_)sample_info warns when querying series with missing samples", {
+  missing.none <- "GSE52564" # The Ben Barres dataset has all samples in ARCHS4
+  missing.some <- "GSE89189" # The blurton jones iPSC paper is missing some
+
+  # This series should have no missing samples
+  si.none <- expect_silent(sample_info(a4, missing.none))
+
+  # This series has a few missing samples
+  wregex <- sprintf("%s series .*missing samples", missing.some)
+  status.some <- expect_warning(sample_info(a4, missing.some), wregex)
+
+  # as.DGEList should also warn when we are missng samples
+  y <- expect_warning(as.DGEList(a4, missing.some), wregex)
+})
+
 test_that("All expected samples come back when queried by series", {
-  series <- "GSE43366"
+  series <- "GSE52564"
   expected <- sample_table(a4) %>%
     filter(series_id == series)
 
@@ -25,10 +51,22 @@ test_that("sample_info returns desired covariate columns", {
   # to support testing "universal" covariates, mouse- and human-only covariates
   # as well.
 
-  # these are all human for now
-  ids <- tibble(
-    id = c('GSE89189', 'GSE29943', "GSM1095128", "GSM1095129", "GSM1095130"),
-    organism = "human")
+  ids.all <- tribble(
+    ~id,         ~type,            ~organism,        ~complete,
+    "GSE69354",  "series",         "mouse",          TRUE,
+    "GSE79525",  "series",         "mouse",          TRUE,
+    "GSE98041",  "series",         "mouse",          TRUE,
+    "GSE85702",  "series",         "mouse",          FALSE,
+    "GSE99095",  "series",         "human",          FALSE,
+    "GSE88681",  "series",         "human",          TRUE)
+
+  ids.query <- tribble(
+    ~id,          ~type,     ~organism,
+    "GSE69354",   "series",  "mouse",
+    "GSE88681",   "series",  "human",
+    "GSM1095128", "sample",  "mouse",
+    "GSM1095129", "sample",  "mouse",
+    "GSM1095130", "sample",  "mouse")
 
   def.cols <- c("Sample_title", "Sample_source_name_ch1")
   extra.cols <- c("Sample_molecule_ch1", "Sample_treatment_protocol_ch1",
@@ -49,15 +87,20 @@ test_that("sample_info returns desired covariate columns", {
               "Sample_treatment_protocol_ch1")
 
   all.cols <- c(def.cols, extra.cols)
-  info <- sample_info(a4, ids$id, all.cols)
+  info <- sample_info(a4, ids.query$id, all.cols)
 
   for (col in all.cols) {
     expect_is(info[[col]], "character", info = col)
-    if (col %in% m.only) {
-      expect_true(all(is.na(info[[col]])), info = col)
-    } else {
-      expect_true(!any(is.na(info[[col]])), info = col)
-    }
+  }
+
+  info.m <- filter(info, organism == "mouse")
+  for (col in intersect(h.only, colnames(info))) {
+    expect_true(all(is.na(info.m[[col]])), info = col)
+  }
+
+  info.h <- filter(info, organism == "human")
+  for (col in intersect(m.only, colnames(info))) {
+    expect_true(all(is.na(info.h[[col]])), info = col)
   }
 })
 
@@ -74,9 +117,7 @@ test_that("sample_info call handlies missing IDs gracefully", {
   # Tests a mix of existing and missing sample identifiers.
   # Missing samples should have NAs in a number of colums. One colume that is
   # always returned is `organism`.
-  res <- expect_warning({
-    sample_info(a4, expected$sample_id)
-  }, "not found")
+  res <- expect_warning(sample_info(a4, expected$sample_id), "not found")
 
   # Expect that we have one row for each entry in `expected.all`
   # we don't join on series_id because the sample_id's that were queried for
