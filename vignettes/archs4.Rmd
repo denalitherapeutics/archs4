@@ -38,85 +38,8 @@ The scope of this package, for now, is to simply make all of the gene- and
 transcript-level expression data easily queryable and retrievable to an analyst
 within R.
 
-# Installation
-
-## R Package
-
-## ARCHS4 Data Download
-
-The user will first have to create a local directory (`$ARCHS4DIR`) that will be
-used to store a number of (large) files, mostly provided by the ARCHS4
-project. In addition to the files that are downloaded from the internet, this
-directory must also have a `meta.yaml` file in it, which associates "file keys"
-to the filenames in the directory.
-
-A convenience function has been provided in this function to create this
-directory and copy over the `meta.yaml` file that is correct for the ARCHS4
-dataset released at the time of the artile's publication.
-
-```{r, eval = FALSE}
-
+```{r child = system.file("rmd", "installation.Rmd", package = "archs4")}
 ```
 
-Let's assume this directory (`$ARCHS4DIR`)
-will be: `~/archs4data/v2`:
-
-```bash
-$ mkdir ~/archs4data/v2`
-```
-
-Now you will have to download the files listed below. You can simply right-click
-and select "Save Link As ..." (or similar), and choose to save these files in
-the `$ARCHS4DIR` directory when the save dialog box pops up:
-
-1. A subset of the [ARCHS4 data][archs4dl]. Note that these hdf5 files are
-   several gigabytes (6-10GB) in size, and will can take *considerable* amount
-   of time to download given your internet connection speed.:
-   
-   a. [human gene-level quantiation hdf5 file][hdf5Hgene] (v2).
-   b. [human transcript-level quantiation hdf5 file][hdf5Htx] (v2).
-   c. [mouse gene-level quantiation hdf5 file][hdf5Mgene] (v2).
-   d. [mouse transcript-level quantiation hdf5 file][hdf5Mtx] (v2).
-
-2. The human and mouse ensembl gtf (v90) files which are used in ARCHS4 data
-   processing pipeline:
-   
-   a. [Homo_sapiens.GRCh38.90.gtf.gz][ensHgtf]
-   b. [Mus_musculus.GRCm38.90.gtf.gz][ensMgtf]
-
-
-### Data Directory Validation Notes
-
-When you load the package and something isn't quite right with your data
-directory:
-
-```
-R> library(archs4)
-Note that your default archs4 data directory is NOT setup correctly
-  * Run `archs4_local_data_dir_validate()` to diagnose
-  * Refer to the ARCHS4 Data Download section of the archs4 vignette for more information
-
-Your default archs4 data directory (`getOption("archs4.datadir")`) is:
-
-  /path/to/value/of/your/getOption("archs4.datadir")
-```
-
-Running `archs4_local_data_dir_validate()` will dump message to stdout that will
-help you to fix your data directory. For instance, if you've downloaded all of
-the ARCHS4 files and have yet to create the augmented feature CSVs, you'll be
-notified of that and how to fix it:
-
-```
-R> archs4_local_data_dir_validate()
-The following computed files are missing:
-  * human_gene_augmented_info.csv.gz
-  * human_transcript_augmented_info.csv.gz
-  * mouse_gene_augmented_info.csv.gz
-  * mouse_transcript_augmented_info.csv.gz
-
-You can create them by running:
-  `create_augmented_feature_info("/Users/lianoglou/workspace/data/archs4/2018-03-26")`
-```
-
-```{r child = system.file("inst/rmd/references.Rmd", package = "archs4")}
+```{r child = system.file("rmd", "references.Rmd", package = "archs4")}
 ```

@@ -1,5 +1,3 @@
-
-
 # Installation
 
 The installation of the `archs4` package is a bit more involved than a standard
