@@ -110,7 +110,8 @@ lookup_gse <- function(acc,
 #'   xml_children
 #' @importFrom tibble set_tidy_names
 #' @importFrom readr type_convert cols
-#' @importFrom dplyr bind_rows distinct rename_all 
+#' @importFrom dplyr distinct rename_all 
+#' @importFrom purrr map_df
 #' @source https://www.ncbi.nlm.nih.gov/books/NBK25499/#_chapter4_ESearch_
 #'
 #' @param x Character vector of sample identifiers to search the Biosample
@@ -143,7 +144,7 @@ lookup_biosamples <- function(x, retmax = 1e5 - 1L) {
                         parsed = FALSE) %>%
     xml2::read_xml() %>%
     xml2::xml_children() %>%
-    purrr::map(.f = function(x) {
+    purrr::map_df(.f = function(x) {
       tibble::data_frame(
         Title = xml2::xml_find_first(
           x,
@@ -179,7 +180,6 @@ lookup_biosamples <- function(x, retmax = 1e5 - 1L) {
           xml2::xml_attr("attribute_name")
       )
     }) %>%
-    dplyr::bind_rows() %>%
     dplyr::distinct() %>%
     tidyr::spread(key = key, value = value) %>%
     tibble::set_tidy_names(syntactic = TRUE, quiet = TRUE) %>%
