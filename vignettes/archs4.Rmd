@@ -118,22 +118,5 @@ You can create them by running:
   `create_augmented_feature_info("/Users/lianoglou/workspace/data/archs4/2018-03-26")`
 ```
 
-[//]: # (References ===========================================================)
-
-[archs4dl]: https://amp.pharm.mssm.edu/archs4/download.html
-[archs4eda]: https://amp.pharm.mssm.edu/archs4/data.html
-[archs4pub]: https://www.nature.com/articles/s41467-018-03751-6
-[archs4web]: https://amp.pharm.mssm.edu/archs4/
-[ensHgtf]: ftp://ftp.ensembl.org/pub/release-90/gtf/homo_sapiens/Homo_sapiens.GRCh38.90.gtf.gz
-[ensMgtf]: ftp://ftp.ensembl.org/pub/release-90/gtf/mus_musculus/Mus_musculus.GRCm38.90.gtf.gz
-[geo]: https://www.ncbi.nlm.nih.gov/geo/
-[hdf5Hgene]: https://s3.amazonaws.com/mssm-seq-matrix/human_matrix.h5
-[hdf5Htx]: https://s3.amazonaws.com/mssm-seq-matrix/human_hiseq_transcript_v2.h5
-[hdf5Mgene]: https://s3.amazonaws.com/mssm-seq-matrix/mouse_matrix.h5
-[hdf5Mtx]: https://s3.amazonaws.com/mssm-seq-matrix/mouse_hiseq_transcript_v2.h5
-[kallisto]: https://pachterlab.github.io/kallisto/about
-[lachmann]: http://www.mountsinai.org/profiles/alexander-lachmann
-[maayanlab]: http://labs.icahn.mssm.edu/maayanlab/
-[sra]: https://www.ncbi.nlm.nih.gov/sra
-
-
+```{r child = system.file("inst/rmd/references.Rmd", package = "archs4")}
+```

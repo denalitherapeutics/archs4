@@ -4,7 +4,7 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r, echo = FALSE}
+```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -14,34 +14,25 @@ knitr::opts_chunk$set(
 
 # Overview
 
-This package provides utility functions to query and explore the expression
-profiling data made available through the [ARCHS4 project][archs4web], which
-is described in the following publication:
+The `archs4` package provides utility functions to query and explore the
+expression profiling data made available through the
+[ARCHS4 project][archs4web], which is described in the following publication:
+
 [Massive mining of publicly available RNA-seq data from human and mouse][archs4pub]. 
 
-# Installation
-
-The user will first have to download the four gene and transcript level hdf5
-data files made available on the [ARCHS4 downloads][archs4dl] page for the
-mouse and human data. These data files need to all be collated into the
-directory specified by `getOption("archs4.datadir")` (`~/.archs4data`, by
-default).
-
-**NOTE:** If you are developing this package and building the documentation, the
-build happens in a vanilla R workspace, which won't set your R's `options`
-if they are in your `~/.Rprofile`. In this case, symlink your archs4 data
-directory such that `~/.archs4data` points to the directory you picked on
-your machine.
-
-[archs4web]: https://amp.pharm.mssm.edu/archs4/
-[archs4dl]: https://amp.pharm.mssm.edu/archs4/download.html
-[archs4pub]: https://www.nature.com/articles/s41467-018-03751-6
+Because this package requires the user to download a number of data files that
+are external to the package, the [installation instructions](#installation) are
+*a bit* more involved than other R packages, and we leave them for 
+[the end of this document](#installation).
 
 # Usage
 
-Please note again that successful usage of this package requires a valid entry
-for `getOption("archs4.datadir")`, otherwise many functions will require you to
-explicitly pass in a `datadir` parameter.
+After [successful installation](#installation) of this package, you can query
+the series and samples included in the ARCHS4 repository, as well as materialize
+the expresion data into well-known bioconductor assay containers for downstream
+analysis.
+
+To query GEO series and samples, you can use the `sample_info` function:
 
 ```{r, message=FALSE, warning=FALSE}
 library(archs4)
@@ -52,18 +43,17 @@ sample.info <- sample_info(a4, ids)
 head(sample.info)
 ```
 
-You can use the `as.DGEList` function to materialize a `edgeR::DGEList` from a
-vector of series or sample-level identifiers, as long as they all reference the
-same species.
+You can use the `as.DGEList` function to materialize an `edgeR::DGEList` from a
+an arbitrary number of GEO sample and series identifier. The only restriction is
+that the data from the series/samples must all be from the same species.
 
 The most often use-case will likely be to create a `DGEList` for a given study.
 For instance, the GEO series identifier [`"GSE89189"`][blurtongeo] refers to the
 expression data generated to support the
 [Abud et al. iPSC-Derived Human Microglia-like Cells ...][blurtonpub] paper.
 
-You can get a `DGEList` of gene-level counts for that study using the command
-below. This will create a `DGEList` of 27,024 genes across 37 samples in about
-1.5 seconds:
+Creating a `DGEList` from this study will create an object with 27,024 genes
+across 37 samples in about 1.5 seconds:
 
 ```{r, eval = FALSE}
 yg <- as.DGEList(a4, "GSE89189", feature_type = "gene")
@@ -76,6 +66,16 @@ experiment in about 1.5 seconds, as well:
 yt <- as.DGEList(a4, "GSE89189", feature_type = "transcript")
 ```
 
+```{r child = "inst/rmd/installation.Rmd"}
+```
 
-[blurtonpub]: https://www.ncbi.nlm.nih.gov/pubmed/28426964
-[blurtongeo]: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE89189
+# Package Development
+
+If you are developing this package and building the documentation, the
+build happens in a vanilla R workspace, which won't set your R's `options`
+if they are in your `~/.Rprofile`. In this case, symlink your archs4 data
+directory such that `~/.archs4data` points to the directory you picked on
+your machine.
+
+```{r child = "inst/rmd/references.Rmd"}
+```

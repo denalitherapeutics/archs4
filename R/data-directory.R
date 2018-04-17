@@ -71,9 +71,9 @@ archs4_local_data_dir_validate <- function(echo = TRUE,
                                            ) {
   msg <- character()
   if (!dir.exists(datadir)) {
-    msg <- paste(
+    msg <- paste0(
       "datadir does not exists, run ",
-      "`archs4_local_data_dir_create(datadir)`\n")
+      '`archs4_local_data_dir_create("', datadir, '")`\n')
     if (echo) cat(msg)
     return(invisible(msg))
   }
@@ -92,8 +92,9 @@ archs4_local_data_dir_validate <- function(echo = TRUE,
   if (nrow(missing)) {
     msg <- paste0(
       "The following ARCHS4 files are missing, please download them:\n",
-      sprintf("  %s: %s", missing[["name"]], missing[["url"]]),
-      "\n")
+      paste0(
+        sprintf("  * %s: %s", missing[["name"]], missing[["url"]]),
+        collapse = "\n"))
     if (echo) cat(msg)
     return(invisible(msg))
   }
@@ -102,8 +103,9 @@ archs4_local_data_dir_validate <- function(echo = TRUE,
   if (nrow(missing)) {
     msg <- paste0(
       "The following ensembl files are missing, please download them:\n",
-      sprintf("  %s: %s", missing[["name"]], missing[["url"]]),
-      "\n")
+      paste0(
+        sprintf("  * %s: %s", missing[["name"]], missing[["url"]]),
+        collapse = "\n"))
     if (echo) cat(msg)
     return(invisible(msg))
   }

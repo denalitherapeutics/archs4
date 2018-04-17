@@ -1,0 +1,16 @@
+[//]: # (References ===========================================================)
+
+[archs4dl]: https://amp.pharm.mssm.edu/archs4/download.html
+[archs4eda]: https://amp.pharm.mssm.edu/archs4/data.html
+[archs4pub]: https://www.nature.com/articles/s41467-018-03751-6
+[archs4web]: https://amp.pharm.mssm.edu/archs4/
+[bioc]: http://bioconductor.org/
+[biocLite]: https://www.bioconductor.org/install/#why-biocLite
+[blurtonpub]: https://www.ncbi.nlm.nih.gov/pubmed/28426964
+[blurtongeo]: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE89189
+[cran]: https://cran.r-project.org/
+[geo]: https://www.ncbi.nlm.nih.gov/geo/
+[kallisto]: https://pachterlab.github.io/kallisto/about
+[lachmann]: http://www.mountsinai.org/profiles/alexander-lachmann
+[maayanlab]: http://labs.icahn.mssm.edu/maayanlab/
+[sra]: https://www.ncbi.nlm.nih.gov/sra
