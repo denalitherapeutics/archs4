@@ -110,6 +110,7 @@ lookup_gse <- function(acc,
 #'   xml_children
 #' @importFrom tibble set_tidy_names
 #' @importFrom readr type_convert cols
+#' @importFrom dplyr bind_rows distinct rename_all 
 #' @source https://www.ncbi.nlm.nih.gov/books/NBK25499/#_chapter4_ESearch_
 #'
 #' @param x Character vector of sample identifiers to search the Biosample
@@ -179,9 +180,9 @@ lookup_biosamples <- function(x, retmax = 1e5 - 1L) {
       )
     }) %>%
     dplyr::bind_rows() %>%
+    dplyr::distinct() %>%
     tidyr::spread(key = key, value = value) %>%
     tibble::set_tidy_names(syntactic = TRUE, quiet = TRUE) %>%
-    dplyr::rename(cell_type = cell.type) %>%
     dplyr::rename_all(tolower) %>%
     readr::type_convert(col_types = readr::cols())
 }
