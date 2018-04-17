@@ -142,7 +142,7 @@ lookup_biosamples <- function(x, retmax = 1e5 - 1L) {
                         parsed = FALSE) %>%
     xml2::read_xml() %>%
     xml2::xml_children() %>%
-    purrr::map(.f = function(x) {
+    purrr::map_df(.f = function(x) {
       tibble::data_frame(
         Title = xml2::xml_find_first(
           x,
@@ -178,10 +178,52 @@ lookup_biosamples <- function(x, retmax = 1e5 - 1L) {
           xml2::xml_attr("attribute_name")
       )
     }) %>%
-    dplyr::bind_rows() %>%
+    dplyr::distinct() %>%
     tidyr::spread(key = key, value = value) %>%
     tibble::set_tidy_names(syntactic = TRUE, quiet = TRUE) %>%
-    dplyr::rename(cell_type = cell.type) %>%
     dplyr::rename_all(tolower) %>%
     readr::type_convert(col_types = readr::cols())
+}
+
+#' Retrieve metadata for an SRA accession
+#'
+#' This function uses the EBI's or the NCBI's REST APIs to retrieve information
+#' about SRA data.
+#' Study accessions (ERP, SRP, DRP, PRJ prefixes), experiment accessions
+#' (ERX, SRX, DRX prefixes), sample accessions (ERS, SRS, DRS, SAM prefixes)
+#' and run accessions (ERR, SRR, DRR prefixes) can be supplied.
+#' For more information see \url{http://www.ebi.ac.uk/ena/browse/file-reports}
+#' @param x SRA identifier
+#' @param from Scalar character, specifying either \code{ncbi} or \code{ena} as
+#' the source database
+#' @return A tbl_df data.frame
+#' @note The output data.frame will be different for the two source databases.
+#' @importFrom readr read_tsv read_csv cols
+#' @export
+#' @examples
+#' if (interactive()) {
+#'    # retrieve study annotations
+#'    retrieve_sra_metadata("SRP066489")
+#'    # paired-end samples
+#'    retrieve_sra_metadata("PRJEB2054", "ena") %>%
+#'    dplyr::filter(sample_accession == "SAMEA728920")
+#' }
+retrieve_sra_metadata <- function(x, from = c("ena", "ncbi")) {
+  from <- match.arg(from)
+  runinfo <- switch(
+    from, 
+    ncbi = {
+      sra_url <- sprintf(
+        paste0("https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?",
+               "save=efetch&rettype=runinfo&db=sra&term=%s"), x)
+      readr::read_csv(url(sra_url), col_types = readr::cols())
+    },
+    ena = {
+      sra_url <- sprintf(paste0(
+        "http://www.ebi.ac.uk/ena/data/warehouse/filereport?accession=%s",
+        "&result=read_run"), x)
+      readr::read_tsv(url(sra_url), col_types = readr::cols())
+    }
+  )
+  return(runinfo)
 }
