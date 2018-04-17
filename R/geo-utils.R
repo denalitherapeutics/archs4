@@ -110,8 +110,6 @@ lookup_gse <- function(acc,
 #'   xml_children
 #' @importFrom tibble set_tidy_names
 #' @importFrom readr type_convert cols
-#' @importFrom dplyr distinct rename_all 
-#' @importFrom purrr map_df
 #' @source https://www.ncbi.nlm.nih.gov/books/NBK25499/#_chapter4_ESearch_
 #'
 #' @param x Character vector of sample identifiers to search the Biosample
