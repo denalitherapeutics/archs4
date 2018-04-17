@@ -38,8 +38,10 @@ The scope of this package, for now, is to simply make all of the gene- and
 transcript-level expression data easily queryable and retrievable to an analyst
 within R.
 
+[//]: # (Installation =========================================================)
 ```{r child = system.file("rmd", "installation.Rmd", package = "archs4")}
 ```
 
+[//]: # (References ===========================================================)
 ```{r child = system.file("rmd", "references.Rmd", package = "archs4")}
 ```

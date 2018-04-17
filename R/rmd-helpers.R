@@ -14,7 +14,7 @@ md_archs4_download_bullet_list <- function(datadir = getOption("archs4.datadir")
     header <- sprintf("* %s\n", s)
     items <- lapply(files, function(f) {
       if (f$source != s) return(NULL)
-      sprintf("   * [%s](%s): %s", f$name, f$url, f$description)
+      sprintf("    - [%s](%s): %s", f$name, f$url, f$description)
     })
     items <- items[sapply(items, Negate(is.null))]
     items <- paste(items, collapse = "\n")
