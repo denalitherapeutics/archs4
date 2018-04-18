@@ -231,7 +231,7 @@ archs4_sample_covariates <- function(datadir = getOption("archs4.datadir"),
   mutate(sample.meta, h5name = paste(group, name, sep = "/"))
 }
 
-#' Checks which samples in a series are present/absent.
+#' Checks which samples from a single series are present/absent.
 #'
 #' Due to download or alignment issues, the ARCHS4 data processing pipeline may
 #' not include all of the samples included in a particular GEO series. This
@@ -287,8 +287,10 @@ archs4_series_status <- function(id,
 #'   [archs4_sample_metadata_names()].
 #' @param sample_table the output from [archs4_sample_table()], which lists
 #'   the series_id,sample_id combinations found in the ARCHS4 repository.
-#' @param sample_covaraites the names of the sample covariates that are stored
-#'   in the ARCHS4 Dataset, available via [archs4_sample_covariates()].
+#' @param sample_covariates the names of the sample covariates that are stored
+#'   in the ARCHS4 Dataset; a complete list of what covariates are available
+#'   in the ARCHS4 dataset is found using the [archs4_sample_covariates()]
+#'   function.
 #' @param check_missing_samples When `TRUE` (the default), this function will
 #'   check every unique GEO series identifier (`"GSEnnnn"`) for missing samples
 #'   by using an NCBI Rest service via a call to [archs4_series_status()],
@@ -357,7 +359,7 @@ archs4_sample_info <- function(id,
                   s, nrow(missing)),
           paste(missing[["sample_id"]], collapse ="\n    * "),
           "\n")
-        warning(msg, immediate. = TRUE)
+        warning(msg, immediate. = TRUE, call. = FALSE)
         # TODO: Add `with_missing_samples` parameter, or does it make sense
         #       to just automatically append these?
         # it hurts me to do this:
@@ -402,7 +404,9 @@ archs4_sample_info <- function(id,
     bind_rows(bad.series) %>%
     bind_rows(bad.samples)
 
-  out
+  col.order <- c("series_id", "sample_id", columns)
+  col.order <- c(col.order, setdiff(colnames(out), col.order))
+  out[, col.order]
 }
 
 #' Helper function that implements sample-level meatdata retrieval

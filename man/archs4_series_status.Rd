@@ -3,7 +3,7 @@
 \name{series_status}
 \alias{series_status}
 \alias{archs4_series_status}
-\title{Checks which samples in a series are present/absent.}
+\title{Checks which samples from a single series are present/absent.}
 \usage{
 series_status(x, id, ...)
 

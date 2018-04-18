@@ -31,10 +31,12 @@ and \code{\link[=lookup_gse]{lookup_gse()}}.}
 \item{sample_table}{the output from \code{\link[=archs4_sample_table]{archs4_sample_table()}}, which lists
 the series_id,sample_id combinations found in the ARCHS4 repository.}
 
-\item{datadir}{the directory that holds the archs4 data}
+\item{sample_covariates}{the names of the sample covariates that are stored
+in the ARCHS4 Dataset; a complete list of what covariates are available
+in the ARCHS4 dataset is found using the \code{\link[=archs4_sample_covariates]{archs4_sample_covariates()}}
+function.}
 
-\item{sample_covaraites}{the names of the sample covariates that are stored
-in the ARCHS4 Dataset, available via \code{\link[=archs4_sample_covariates]{archs4_sample_covariates()}}.}
+\item{datadir}{the directory that holds the archs4 data}
 }
 \value{
 a tibble of series_id, sample_id, sample_h5idx, sample_title, and

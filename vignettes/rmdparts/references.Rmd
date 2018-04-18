@@ -4,6 +4,8 @@
 [archs4eda]: https://amp.pharm.mssm.edu/archs4/data.html
 [archs4pub]: https://www.nature.com/articles/s41467-018-03751-6
 [archs4web]: https://amp.pharm.mssm.edu/archs4/
+[barrespub]: http://www.jneurosci.org/content/34/36/11929.short
+[barresgeo]: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE52564
 [bioc]: http://bioconductor.org/
 [biocLite]: https://www.bioconductor.org/install/#why-biocLite
 [blurtonpub]: https://www.ncbi.nlm.nih.gov/pubmed/28426964

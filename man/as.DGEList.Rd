@@ -16,6 +16,11 @@ as.DGEList(x, id, sample_columns = c("Sample_title",
 \item{row_id}{either \code{"ensembl"} or \code{"symbol"}. If this is \code{"ensembl"} and
 \code{feature_type == "transcript"}, then we remove the rows from the count
 dataset that we couldn't map symbol -> ensembl_gene_id for.}
+
+\item{sample_covariates}{the names of the sample covariates that are stored
+in the ARCHS4 Dataset; a complete list of what covariates are available
+in the ARCHS4 dataset is found using the \code{\link[=archs4_sample_covariates]{archs4_sample_covariates()}}
+function.}
 }
 \value{
 a \code{DGEList} of results

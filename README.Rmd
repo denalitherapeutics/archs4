@@ -66,16 +66,11 @@ experiment in about 1.5 seconds, as well:
 yt <- as.DGEList(a4, "GSE89189", feature_type = "transcript")
 ```
 
-```{r child = "inst/rmd/installation.Rmd"}
+# Installation
+
+```{r child = "vignettes/rmdparts/installation.Rmd"}
 ```
 
-# Package Development
-
-If you are developing this package and building the documentation, the
-build happens in a vanilla R workspace, which won't set your R's `options`
-if they are in your `~/.Rprofile`. In this case, symlink your archs4 data
-directory such that `~/.archs4data` points to the directory you picked on
-your machine.
-
-```{r child = "inst/rmd/references.Rmd"}
+[//]: # (References ===========================================================)
+```{r child = "vignettes/rmdparts/references.Rmd"}
 ```

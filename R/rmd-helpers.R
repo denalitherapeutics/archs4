@@ -1,7 +1,6 @@
 #' Generates markdown enumeration of linked files to download for datadir
 #'
 #' @noRd
-#' @importFrom yaml
 #'
 #' @param datadir the archs4 data dir
 #' @return a character string

@@ -1,5 +1,3 @@
-# Installation
-
 The installation of the `archs4` package is a bit more involved than a standard
 package installation and can be roughly broken down into three steps.
 
@@ -47,7 +45,7 @@ global `"archs4.datadir`" option to be the path to that directory.
 
 You will have to create a directory on your filesystem which will hold a number
 of data files that the `archs4` package depends on. Let's call this
-directory `$ARCHS4DIR`, which we will define here to be `~/data/archs4v2`.
+directory `$ARCHS4DIR`, which we will define here to be `~/archs4v2data`.
 
 The `archs4` package provides the `archs4_local_data_dir_create()` convenience
 function which creates this directory and copies over a `meta.yaml` into that
@@ -55,7 +53,7 @@ directory which specifies the files which are expected to be found there:
 
 ```{r, eval = FALSE}
 library(archs4)
-archs4dir <- "~/data/archs4v2"
+archs4dir <- "~/archs4v2data"
 archs4_local_data_dir_create(archs4dir)
 ```
 
@@ -75,7 +73,7 @@ your web-browser to save them to your local `$ARCHS4DIR`.
 should be the path to `$ARCHS4DIR`. For convenience, the default value of this
 parameter is always set to `getOption("archs4.datadir")`. This means that you
 can modify your `~/.Rprofile` file to set the value of this option to
-`"~/data/archs4v2"` (for instance), so that the package will always look there
+`"~/archs4v2data"` (for instance), so that the package will always look there
 by default. If this option is not set in your `~/.Rprofile`, the
 default value for this option is "~/.archs4data".
 
@@ -105,6 +103,14 @@ This function will load and parse the GTF files from human and mouse, and
 create gene- and transcript-level `*.csv.gz` files in the `$ARCHS4DIR` which
 the `archs4` package will then later use downstream.
 
+Once your `$ARCHS4DIR` is setup, you may find it convenient to set the default
+value for R's global `"archs4.datadir"` option to the `$ARCHS4DIR` directory you
+just setup. To do so, you can put the following line in your `~/.Rprofile` file:
+
+```r
+options(archs4.datadir = "~/archs4v2data")
+```
+
 ## ARCHS4 Installation Heatlh
 
 Because the installation of this package is a bit more involved than most,
@@ -128,3 +134,17 @@ archs4_local_data_dir_validate(archs4dir)
 #>   * human_matrix.h5: https://s3.amazonaws.com/mssm-seq-matrix/human_matrix.h5
 #>   * human_hiseq_transcript_v2.h5: #> https://s3.amazonaws.com/mssm-seq-matrix/human_hiseq_transcript_v2.h5
 ```
+
+**NOTE:** If all installation and data download/processing steps have been
+finished successfully, a call to `archs4_local_data_dir_validate()` will simply
+return `TRUE`.
+
+
+## Package Development
+
+If you are developing this package, you will find that it will be convenient
+to symlink the package's default `archs4.datadir` path (`~/.arcsh4data`) to the
+`$ARCHS4DIR` you just setup. This is because often times things like roxygen2
+document compilation, unit testing, etc. happen in a vanilla R workspace, which
+won't run the configuration that is prescribed in your `~/.Rprofile` file.
+

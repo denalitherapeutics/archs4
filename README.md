@@ -24,16 +24,16 @@ ids <- c('GSE89189', 'GSE29943', "GSM1095128", "GSM1095129", "GSM1095130")
 sample.info <- sample_info(a4, ids)
 head(sample.info)
 #> # A tibble: 6 x 8
-#>   series_id sample_id  query_type sample_h5idx_gene sample_h5idx_transcri…
-#>   <chr>     <chr>      <chr>                  <int>                  <int>
-#> 1 GSE89189  GSM2360252 series                 69074                  69074
-#> 2 GSE89189  GSM2360253 series                 69075                  69075
-#> 3 GSE89189  GSM2360254 series                 69076                  69076
-#> 4 GSE89189  GSM2360255 series                 69077                  69077
-#> 5 GSE89189  GSM2360256 series                 69078                  69078
-#> 6 GSE89189  GSM2360257 series                 69079                  69079
-#> # ... with 3 more variables: organism <chr>, Sample_title <chr>,
-#> #   Sample_source_name_ch1 <chr>
+#>   series_id sample_id  Sample_title Sample_source_name_ch1 query_type
+#>   <chr>     <chr>      <chr>        <chr>                  <chr>     
+#> 1 GSE89189  GSM2360252 10318X2      iPS microglia          series    
+#> 2 GSE89189  GSM2360253 7028X2       iPS microglia          series    
+#> 3 GSE89189  GSM2360254 x2-1         iPS microglia          series    
+#> 4 GSE89189  GSM2360255 x2-2         iPS microglia          series    
+#> 5 GSE89189  GSM2360256 x2-3         iPS microglia          series    
+#> 6 GSE89189  GSM2360257 x2-4         iPS microglia          series    
+#> # ... with 3 more variables: sample_h5idx_gene <int>,
+#> #   sample_h5idx_transcript <int>, organism <chr>
 ```
 
 You can use the `as.DGEList` function to materialize an `edgeR::DGEList` from a an arbitrary number of GEO sample and series identifier. The only restriction is that the data from the series/samples must all be from the same species.
@@ -90,13 +90,13 @@ In order for the package to work correctly, you must download a number of files 
 Data File Download
 ------------------
 
-You will have to create a directory on your filesystem which will hold a number of data files that the `archs4` package depends on. Let's call this directory `$ARCHS4DIR`, which we will define here to be `~/data/archs4v2`.
+You will have to create a directory on your filesystem which will hold a number of data files that the `archs4` package depends on. Let's call this directory `$ARCHS4DIR`, which we will define here to be `~/archs4v2data`.
 
 The `archs4` package provides the `archs4_local_data_dir_create()` convenience function which creates this directory and copies over a `meta.yaml` into that directory which specifies the files which are expected to be found there:
 
 ``` r
 library(archs4)
-archs4dir <- "~/data/archs4v2"
+archs4dir <- "~/archs4v2data"
 archs4_local_data_dir_create(archs4dir)
 ```
 
@@ -113,7 +113,7 @@ Once this directory is created successfully, you will then have to download the 
 
 The enumerated items above contain links to the files that need to be downloaded. You can right-click on them and select `Save As ...` and instruct your web-browser to save them to your local `$ARCHS4DIR`.
 
-**NOTE**: Most all of the `archs4` functions accept a `datadir` parameter, which should be the path to `$ARCHS4DIR`. For convenience, the default value of this parameter is always set to `getOption("archs4.datadir")`. This means that you can modify your `~/.Rprofile` file to set the value of this option to `"~/data/archs4v2"` (for instance), so that the package will always look there by default. If this option is not set in your `~/.Rprofile`, the default value for this option is "~/.archs4data".
+**NOTE**: Most all of the `archs4` functions accept a `datadir` parameter, which should be the path to `$ARCHS4DIR`. For convenience, the default value of this parameter is always set to `getOption("archs4.datadir")`. This means that you can modify your `~/.Rprofile` file to set the value of this option to `"~/archs4v2data"` (for instance), so that the package will always look there by default. If this option is not set in your `~/.Rprofile`, the default value for this option is "~/.archs4data".
 
 Feature-Level Metadata Generation
 ---------------------------------
@@ -133,6 +133,12 @@ create_augmented_feature_info(archs4dir)
 
 This function will load and parse the GTF files from human and mouse, and create gene- and transcript-level `*.csv.gz` files in the `$ARCHS4DIR` which the `archs4` package will then later use downstream.
 
+Once your `$ARCHS4DIR` is setup, you may find it convenient to set the default value for R's global `"archs4.datadir"` option to the `$ARCHS4DIR` directory you just setup. To do so, you can put the following line in your `~/.Rprofile` file:
+
+``` r
+options(archs4.datadir = "~/archs4v2data")
+```
+
 ARCHS4 Installation Heatlh
 --------------------------
 
@@ -149,7 +155,9 @@ archs4_local_data_dir_validate(archs4dir)
 #>   * human_hiseq_transcript_v2.h5: #> https://s3.amazonaws.com/mssm-seq-matrix/human_hiseq_transcript_v2.h5
 ```
 
-Package Development
-===================
+**NOTE:** If all installation and data download/processing steps have been finished successfully, a call to `archs4_local_data_dir_validate()` will simply return `TRUE`.
 
-If you are developing this package and building the documentation, the build happens in a vanilla R workspace, which won't set your R's `options` if they are in your `~/.Rprofile`. In this case, symlink your archs4 data directory such that `~/.archs4data` points to the directory you picked on your machine.
+Package Development
+-------------------
+
+If you are developing this package, you will find that it will be convenient to symlink the package's default `archs4.datadir` path (`~/.arcsh4data`) to the `$ARCHS4DIR` you just setup. This is because often times things like roxygen2 document compilation, unit testing, etc. happen in a vanilla R workspace, which won't run the configuration that is prescribed in your `~/.Rprofile` file.

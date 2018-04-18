@@ -4,6 +4,10 @@
 #' @importFrom rhdf5 h5read
 #'
 #' @param id a vector of series or sample id's.
+#' @param sample_covariates the names of the sample covariates that are stored
+#'   in the ARCHS4 Dataset; a complete list of what covariates are available
+#'   in the ARCHS4 dataset is found using the [archs4_sample_covariates()]
+#'   function.
 #' @param feature_type do you want `"gene"` or `"transcript"` level expression?
 #' @param row_id either `"ensembl"` or `"symbol"`. If this is `"ensembl"` and
 #'   `feature_type == "transcript"`, then we remove the rows from the count
@@ -22,7 +26,8 @@ as.DGEList <- function(x, id,
   row_id <- match.arg(row_id)
 
   # Identify the unique samples that are being queried -------------------------
-  si <- sample_info(x, id, columns = sample_columns)
+  si <- sample_info(x, id, columns = sample_columns,
+                    check_missing_samples = TRUE)
   si <- as.data.frame(si, strinsAsFactors = FALSE)
   rownames(si) <- si$sample_id
 
