@@ -103,13 +103,13 @@ archs4_local_data_dir_create(archs4dir)
 Once this directory is created successfully, you will then have to download the following files into it:
 
 -   archs4
-    -   [human\_matrix.h5](https://s3.amazonaws.com/mssm-seq-matrix/human_matrix.h5): human gene-level counts
-    -   [human\_hiseq\_transcript\_v2.h5](https://s3.amazonaws.com/mssm-seq-matrix/human_hiseq_transcript_v2.h5): human transcript-level counts
-    -   [mouse\_matrix.h5](https://s3.amazonaws.com/mssm-seq-matrix/mouse_matrix.h5): mouse gene-level counts
-    -   [mouse\_hiseq\_transcript\_v2.h5](https://s3.amazonaws.com/mssm-seq-matrix/mouse_hiseq_transcript_v2.h5): mouse transcript-level counts
+    -   [`human_matrix.h5`](https://s3.amazonaws.com/mssm-seq-matrix/human_matrix.h5): human gene-level counts
+    -   [`human_hiseq_transcript_v2.h5`](https://s3.amazonaws.com/mssm-seq-matrix/human_hiseq_transcript_v2.h5): human transcript-level counts
+    -   [`mouse_matrix.h5`](https://s3.amazonaws.com/mssm-seq-matrix/mouse_matrix.h5): mouse gene-level counts
+    -   [`mouse_hiseq_transcript_v2.h5`](https://s3.amazonaws.com/mssm-seq-matrix/mouse_hiseq_transcript_v2.h5): mouse transcript-level counts
 -   ensembl
-    -   [Homo\_sapiens.GRCh38.90.gtf.gz](ftp://ftp.ensembl.org/pub/release-90/gtf/homo_sapiens/Homo_sapiens.GRCh38.90.gtf.gz): gtf used for human transcript annotations
-    -   [Mus\_musculus.GRCm38.90.gtf.gz](ftp://ftp.ensembl.org/pub/release-90/gtf/mus_musculus/Mus_musculus.GRCm38.90.gtf.gz): gtf used for mouse transcript annotations
+    -   `Homo_sapiens.GRCh38.90.gtf.gz`: gtf used for human transcript annotations <ftp://ftp.ensembl.org/pub/release-90/gtf/homo_sapiens/Homo_sapiens.GRCh38.90.gtf.gz>
+    -   `Mus_musculus.GRCm38.90.gtf.gz`: gtf used for mouse transcript annotations <ftp://ftp.ensembl.org/pub/release-90/gtf/mus_musculus/Mus_musculus.GRCm38.90.gtf.gz>
 
 The enumerated items above contain links to the files that need to be downloaded. You can right-click on them and select `Save As ...` and instruct your web-browser to save them to your local `$ARCHS4DIR`.
 

@@ -14,7 +14,14 @@ md_archs4_download_bullet_list <- function(datadir = getOption("archs4.datadir")
     header <- sprintf("* %s\n", s)
     items <- lapply(files, function(f) {
       if (f$source != s) return(NULL)
-      sprintf("    - [%s](%s): %s", f$name, f$url, f$description)
+      # ftp:// links aren't rendered correctly in Rmd's, so we need to print
+      # http:// vs ftp:// links separately
+      if (substr(f$url, 1, 4) == "http") {
+        md <- sprintf("    - [`%s`](%s): %s", f$name, f$url, f$description)
+      } else {
+        md <- sprintf("    - `%s`: %s\n         %s", f$name, f$description, f$url)
+      }
+      md
     })
     items <- items[sapply(items, Negate(is.null))]
     items <- paste(items, collapse = "\n")
