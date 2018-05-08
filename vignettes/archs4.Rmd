@@ -4,7 +4,8 @@ author: "Steve Lianoglou"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
-    css: mystyles.css
+#    css: mystyles.css
+    toc: true
 vignette: >
   %\VignetteIndexEntry{ARCHS4 Overview}
   %\VignetteEngine{knitr::rmarkdown}

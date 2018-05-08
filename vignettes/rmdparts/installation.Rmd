@@ -17,7 +17,7 @@ can seamlessly install packages from github, CRAN, and Bioconductor.
 ```{r, eval = FALSE}
 source("https://bioconductor.org/biocLite.R")
 biocLite("denalitherapeutics/archs4")
-library(archs4)
+library("archs4")
 ```
 
 When you first load the `archs4` library, you will notice a startup message
@@ -48,8 +48,10 @@ of data files that the `archs4` package depends on. Let's call this
 directory `$ARCHS4DIR`, which we will define here to be `~/archs4v2data`.
 
 The `archs4` package provides the `archs4_local_data_dir_create()` convenience
-function which creates this directory and copies over a `meta.yaml` into that
-directory which specifies the files which are expected to be found there:
+function which creates this directory and copies over a `meta.yaml` file into
+that directory. The purpose of this file is to specify the names of the
+downloaded files that correspond to the human and mouse-level gene and
+transcript-level data.
 
 ```{r, eval = FALSE}
 library(archs4)
@@ -87,13 +89,14 @@ provide minimal feature-level metadata:
 * only the ensembl transcript id's are provided for the features in the
   transcript-level datasets
 
-In order to augment these files with richer annotation such as the ensembl gene
-identifiers or gene biotypes, for instance.
+We want to augment these features with richer annotations, such as the ensembl
+gene identifiers or gene biotypes, for instance.
 
 To make such data generation automatic and easy for the user, once you have
 downloaded the Ensembl GTF files listed above into the `$ARCHS4DIR`, you can
-run the `create_augmented_feature_info()` to create the feature-level metadata
-tables that provide richer information for the features in the datasets:
+run the `create_augmented_feature_info()` to extract these extra feature-level
+metadata from the GTF files and store them as tables inside `$ARCHS4DIR` for
+later use.
 
 ```{r eval = FALSE}
 create_augmented_feature_info(archs4dir)
@@ -118,7 +121,7 @@ we have also provided an `archs4_local_data_dir_validate()` function, which
 you can run over your `$ARCHS4DIR` in order to check on "the health" of your
 install.
 
-This function simply look at your `$ARCHS4DIR` to ensure that the required
+This function will simply look at your `$ARCHS4DIR` to ensure that the required
 files are there, and tries to give you helpful error messages if not.
 
 For instance, if the first two files enumerated in the
@@ -136,7 +139,7 @@ archs4_local_data_dir_validate(archs4dir)
 ```
 
 **NOTE:** If all installation and data download/processing steps have been
-finished successfully, a call to `archs4_local_data_dir_validate()` will simply
+completed successfully, a call to `archs4_local_data_dir_validate()` will simply
 return `TRUE`.
 
 

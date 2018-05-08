@@ -36,7 +36,7 @@ head(sample.info)
 #> #   sample_h5idx_transcript <int>, organism <chr>
 ```
 
-You can use the `as.DGEList` function to materialize an `edgeR::DGEList` from a an arbitrary number of GEO sample and series identifier. The only restriction is that the data from the series/samples must all be from the same species.
+You can use the `as.DGEList` function to materialize an `edgeR::DGEList` from a an arbitrary number of GEO sample and series identifiers. The only restriction is that the data from the series/samples must all be from the same species.
 
 The most often use-case will likely be to create a `DGEList` for a given study. For instance, the GEO series identifier [`"GSE89189"`](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE89189) refers to the expression data generated to support the [Abud et al. iPSC-Derived Human Microglia-like Cells ...](https://www.ncbi.nlm.nih.gov/pubmed/28426964) paper.
 
@@ -71,7 +71,7 @@ The `arcsh4` package depends on other packages that are available through both [
 ``` r
 source("https://bioconductor.org/biocLite.R")
 biocLite("denalitherapeutics/archs4")
-library(archs4)
+library("archs4")
 ```
 
 When you first load the `archs4` library, you will notice a startup message telling you that something isn't quite right with your `archs4` installation. The message will look something like this:
@@ -92,7 +92,7 @@ Data File Download
 
 You will have to create a directory on your filesystem which will hold a number of data files that the `archs4` package depends on. Let's call this directory `$ARCHS4DIR`, which we will define here to be `~/archs4v2data`.
 
-The `archs4` package provides the `archs4_local_data_dir_create()` convenience function which creates this directory and copies over a `meta.yaml` into that directory which specifies the files which are expected to be found there:
+The `archs4` package provides the `archs4_local_data_dir_create()` convenience function which creates this directory and copies over a `meta.yaml` file into that directory. The purpose of this file is to specify the names of the downloaded files that correspond to the human and mouse-level gene and transcript-level data.
 
 ``` r
 library(archs4)
@@ -123,9 +123,9 @@ The datasets currently made available by the [ARCHS4 Project](https://amp.pharm.
 -   the features in the gene-level datasets are identified only by their symbol; and
 -   only the ensembl transcript id's are provided for the features in the transcript-level datasets
 
-In order to augment these files with richer annotation such as the ensembl gene identifiers or gene biotypes, for instance.
+We want to augment these features with richer annotations, such as the ensembl gene identifiers or gene biotypes, for instance.
 
-To make such data generation automatic and easy for the user, once you have downloaded the Ensembl GTF files listed above into the `$ARCHS4DIR`, you can run the `create_augmented_feature_info()` to create the feature-level metadata tables that provide richer information for the features in the datasets:
+To make such data generation automatic and easy for the user, once you have downloaded the Ensembl GTF files listed above into the `$ARCHS4DIR`, you can run the `create_augmented_feature_info()` to extract these extra feature-level metadata from the GTF files and store them as tables inside `$ARCHS4DIR` for later use.
 
 ``` r
 create_augmented_feature_info(archs4dir)
@@ -144,7 +144,7 @@ ARCHS4 Installation Heatlh
 
 Because the installation of this package is a bit more involved than most, we have also provided an `archs4_local_data_dir_validate()` function, which you can run over your `$ARCHS4DIR` in order to check on "the health" of your install.
 
-This function simply look at your `$ARCHS4DIR` to ensure that the required files are there, and tries to give you helpful error messages if not.
+This function will simply look at your `$ARCHS4DIR` to ensure that the required files are there, and tries to give you helpful error messages if not.
 
 For instance, if the first two files enumerated in the [Data File Download](#data-file-download) section were missing from your `$ARCHS4DIR` (ie. `human_matrix.h5` and `human_hiseq_transcript_v2.h5`), you would be warned that "something isn't right" when you first load the `archs4` package. You could then run the `archs4_local_data_dir_validate()` to see what is wrong:
 
@@ -155,7 +155,7 @@ archs4_local_data_dir_validate(archs4dir)
 #>   * human_hiseq_transcript_v2.h5: #> https://s3.amazonaws.com/mssm-seq-matrix/human_hiseq_transcript_v2.h5
 ```
 
-**NOTE:** If all installation and data download/processing steps have been finished successfully, a call to `archs4_local_data_dir_validate()` will simply return `TRUE`.
+**NOTE:** If all installation and data download/processing steps have been completed successfully, a call to `archs4_local_data_dir_validate()` will simply return `TRUE`.
 
 Package Development
 -------------------
