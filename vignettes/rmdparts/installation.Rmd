@@ -16,7 +16,7 @@ can seamlessly install packages from github, CRAN, and Bioconductor.
 
 ```{r, eval = FALSE}
 source("https://bioconductor.org/biocLite.R")
-biocLite("denalitherapeutics/archs4")
+biocLite("denalitherapeutics/archs4", build_vignettes=TRUE)
 library("archs4")
 ```
 

@@ -70,7 +70,7 @@ The `arcsh4` package depends on other packages that are available through both [
 
 ``` r
 source("https://bioconductor.org/biocLite.R")
-biocLite("denalitherapeutics/archs4")
+biocLite("denalitherapeutics/archs4", build_vignettes=TRUE)
 library("archs4")
 ```
 
