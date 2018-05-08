@@ -11,11 +11,11 @@ query_geo(accession, target = c("self", "gsm", "gpl", "gse", "all"),
   validate = FALSE, verbose = FALSE)
 }
 \arguments{
+\item{accession}{Scalar character, GEO identifier for a series (GSE), a
+sample (GSM) or a platform (GPL).}
+
 \item{validate}{Scalar boolean, validate the retrieved xml file against
 NCBI's schema?}
-
-\item{acc}{Scalar character, GEO identifier for a series (GSE), a sample
-(GSM) or a platform (GPL).}
 }
 \value{
 xml2::xml_document object

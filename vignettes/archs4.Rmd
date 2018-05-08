@@ -2,10 +2,11 @@
 title: "ARCHS4 Overview"
 author: "Steve Lianoglou"
 date: "`r Sys.Date()`"
-output: 
-  rmarkdown::html_vignette:
-#    css: mystyles.css
+packages: archs4
+output:
+  rmarkdown::html_document:
     toc: true
+    toc_float: true
 vignette: >
   %\VignetteIndexEntry{ARCHS4 Overview}
   %\VignetteEngine{knitr::rmarkdown}
@@ -44,7 +45,7 @@ required data files as well as example usage scenarios.
 
 # Installation
 
-```{r child = "rmdparts/installation.Rmd"}
+```{r child = system.file("rmdparts/installation.Rmd", package = "archs4")}
 ```
 
 # Usage
@@ -216,5 +217,5 @@ https://github.com/denalitherapeutics/archs4/issues
 
 
 [//]: # (References ===========================================================)
-```{r child = "rmdparts/references.Rmd"}
+```{r child = system.file("rmdparts/references.Rmd", package = "archs4")}
 ```

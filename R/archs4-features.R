@@ -32,6 +32,7 @@
 #' if the already exist in `datadir`.
 #'
 #' @export
+#' @importFrom utils write.csv
 #' @seealso [archs4_feature_info()]
 #'
 #' @param datadir The directory that has the mouse and human expression

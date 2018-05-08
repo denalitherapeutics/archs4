@@ -128,15 +128,18 @@ archs4_file_info <- function(datadir = getOption("archs4.datadir")) {
 #' exist on the file system, set `stop_if_missing = FALSE`.
 #'
 #' @export
+#' @importFrom stats setNames
 #'
 #' @param key the lookup key for the file, ie. `"human_gene"` or `"mouse_gene"`.
-#'   The known keys are enumerated in `archs4_file_info()$keyb`.
+#'   The known keys are enumerated in `archs4_file_info()$key` column.
 #' @param stop_if_missing defaults to `TRUE`, which causes this function to
 #'   throw an error if the file does not exist at the expected `file_path`.
 #'   Set this to `FALSE` to simply raise a warning
 #' @param na_missing by default, we set paths to files that don't exist to
 #'   `NA`. Set this to `FALSE` to retrieve the expected path of the missing
 #'   file.
+#' @param file_info the output from [archs4_file_info()], which enumerates the
+#'   files used by the `Archs4Repository`.
 #' @param datadir the directory that stores the ARCHS4 data files
 #' @return a named (by `key`) character vector of paths to the filesystem that
 #'   correspond to the entries in `key`.
@@ -284,13 +287,13 @@ archs4_series_status <- function(id,
 #' @param columns the names of the sample metadata columns desired. This
 #'   defaults to `c("Sample_title", "Sample_source_name_ch1")`. The values
 #'   in `columns` must be a subset of the values enumerated in
-#'   [archs4_sample_metadata_names()].
+#'   [archs4_sample_covariates()].
 #' @param sample_table the output from [archs4_sample_table()], which lists
 #'   the series_id,sample_id combinations found in the ARCHS4 repository.
-#' @param sample_covariates the names of the sample covariates that are stored
-#'   in the ARCHS4 Dataset; a complete list of what covariates are available
-#'   in the ARCHS4 dataset is found using the [archs4_sample_covariates()]
-#'   function.
+#' @param sample_covariates the `data.frame`-definition of the sample covariates
+#'   found in the ARCHS4 datasetes, which is constructed via a call to
+#'   [archs4_sample_covariates()]. The parameter is included in here so that
+#'   a cached version of this `data.frame` can be re-used.
 #' @param check_missing_samples When `TRUE` (the default), this function will
 #'   check every unique GEO series identifier (`"GSEnnnn"`) for missing samples
 #'   by using an NCBI Rest service via a call to [archs4_series_status()],

@@ -4,11 +4,11 @@
 \alias{lookup_gse}
 \title{Retrieve information about a GEO series}
 \usage{
-lookup_gse(acc, fields = c("Accession", "Title", "Summary", "Overall-Design",
-  "Type", "Pubmed-ID", "Sample"), ...)
+lookup_gse(accession, fields = c("Accession", "Title", "Summary",
+  "Overall-Design", "Type", "Pubmed-ID", "Sample"), ...)
 }
 \arguments{
-\item{acc}{Scalar character, GEO series identifier e.g. GSE109171}
+\item{accession}{Scalar character, GEO series identifier e.g. GSE109171}
 
 \item{fields}{Character vector specifying which fields to extract from the
 XML file returned by GEO}
@@ -23,5 +23,7 @@ Queries NCBI GEO's REST interface to retrieve e.g. title, summary and the
 list of samples for a GEO series.
 }
 \examples{
-lookup_gse("GSE109171")
+if (interactive()) {
+  lookup_gse("GSE109171")
+}
 }

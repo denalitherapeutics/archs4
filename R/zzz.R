@@ -12,7 +12,7 @@
   ddir <- getOption("archs4.datadir")
   kosher <- archs4_local_data_dir_validate(echo = FALSE, datadir = ddir)
   if (!isTRUE(kosher)) {
-    message(
+    packageStartupMessage(
       "Note that your default archs4 data directory is NOT setup correctly\n\n",
       "  * Run `archs4_local_data_dir_validate()` to diagnose\n",
       "  * Refer to the ARCHS4 Data Download section of the archs4 vignette ",

@@ -21,7 +21,7 @@ archs4_sample_info(id, columns = c("Sample_title", "Sample_source_name_ch1"),
 \item{columns}{the names of the sample metadata columns desired. This
 defaults to \code{c("Sample_title", "Sample_source_name_ch1")}. The values
 in \code{columns} must be a subset of the values enumerated in
-\code{\link[=archs4_sample_metadata_names]{archs4_sample_metadata_names()}}.}
+\code{\link[=archs4_sample_covariates]{archs4_sample_covariates()}}.}
 
 \item{check_missing_samples}{When \code{TRUE} (the default), this function will
 check every unique GEO series identifier (\code{"GSEnnnn"}) for missing samples
@@ -31,10 +31,10 @@ and \code{\link[=lookup_gse]{lookup_gse()}}.}
 \item{sample_table}{the output from \code{\link[=archs4_sample_table]{archs4_sample_table()}}, which lists
 the series_id,sample_id combinations found in the ARCHS4 repository.}
 
-\item{sample_covariates}{the names of the sample covariates that are stored
-in the ARCHS4 Dataset; a complete list of what covariates are available
-in the ARCHS4 dataset is found using the \code{\link[=archs4_sample_covariates]{archs4_sample_covariates()}}
-function.}
+\item{sample_covariates}{the \code{data.frame}-definition of the sample covariates
+found in the ARCHS4 datasetes, which is constructed via a call to
+\code{\link[=archs4_sample_covariates]{archs4_sample_covariates()}}. The parameter is included in here so that
+a cached version of this \code{data.frame} can be re-used.}
 
 \item{datadir}{the directory that holds the archs4 data}
 }

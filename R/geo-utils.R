@@ -26,8 +26,8 @@ geo_id_type <- function(id) {
 #'   xml_text
 #' @source https://www.ncbi.nlm.nih.gov/geo/info/download.html
 #'
-#' @param acc Scalar character, GEO identifier for a series (GSE), a sample
-#'   (GSM) or a platform (GPL).
+#' @param accession Scalar character, GEO identifier for a series (GSE), a
+#'   sample (GSM) or a platform (GPL).
 #' @param validate Scalar boolean, validate the retrieved xml file against
 #'   NCBI's schema?
 #' @return xml2::xml_document object
@@ -63,21 +63,24 @@ query_geo <- function(accession, target = c("self", "gsm", "gpl", "gse", "all"),
 #'
 #' @export
 #' @importFrom xml2 xml_contents xml_find_all xml_text
+#' @importFrom stats setNames
 #'
-#' @param acc Scalar character, GEO series identifier e.g. GSE109171
+#' @param accession Scalar character, GEO series identifier e.g. GSE109171
 #' @param fields Character vector specifying which fields to extract from the
 #'   XML file returned by GEO
 #' @param ... Additional arguments passed on to the `query_geo` function.
 #' @return List the requested `fields`
 #' @examples
-#' lookup_gse("GSE109171")
-lookup_gse <- function(acc,
+#' if (interactive()) {
+#'   lookup_gse("GSE109171")
+#' }
+lookup_gse <- function(accession,
                        fields = c("Accession", "Title", "Summary",
                                   "Overall-Design", "Type", "Pubmed-ID",
                                   "Sample"),
                        ...) {
   fields <- match.arg(fields, several.ok = TRUE)
-  xml <- query_geo(acc = acc, target = "gse", ...) %>%
+  xml <- query_geo(accession, target = "gse", ...) %>%
     xml2::xml_ns_strip()
   series_fields <- setdiff(fields, "Sample")
   series <- purrr::map(
@@ -211,7 +214,7 @@ lookup_biosamples <- function(x, retmax = 1e5 - 1L) {
 retrieve_sra_metadata <- function(x, from = c("ena", "ncbi")) {
   from <- match.arg(from)
   runinfo <- switch(
-    from, 
+    from,
     ncbi = {
       sra_url <- sprintf(
         paste0("https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?",

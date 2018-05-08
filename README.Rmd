@@ -68,9 +68,9 @@ yt <- as.DGEList(a4, "GSE89189", feature_type = "transcript")
 
 # Installation
 
-```{r child = "vignettes/rmdparts/installation.Rmd"}
+```{r child = "inst/rmdparts/installation.Rmd"}
 ```
 
 [//]: # (References ===========================================================)
-```{r child = "vignettes/rmdparts/references.Rmd"}
+```{r child = "inst/rmdparts/references.Rmd"}
 ```

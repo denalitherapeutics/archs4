@@ -15,7 +15,7 @@ archs4_file_path(key, stop_if_missing = TRUE, na_missing = TRUE,
 \item{x}{an \code{Archs4Repository}}
 
 \item{key}{the lookup key for the file, ie. \code{"human_gene"} or \code{"mouse_gene"}.
-The known keys are enumerated in \code{archs4_file_info()$keyb}.}
+The known keys are enumerated in \code{archs4_file_info()$key} column.}
 
 \item{stop_if_missing}{defaults to \code{TRUE}, which causes this function to
 throw an error if the file does not exist at the expected \code{file_path}.
@@ -24,6 +24,9 @@ Set this to \code{FALSE} to simply raise a warning}
 \item{na_missing}{by default, we set paths to files that don't exist to
 \code{NA}. Set this to \code{FALSE} to retrieve the expected path of the missing
 file.}
+
+\item{file_info}{the output from \code{\link[=archs4_file_info]{archs4_file_info()}}, which enumerates the
+files used by the \code{Archs4Repository}.}
 
 \item{datadir}{the directory that stores the ARCHS4 data files}
 }

@@ -2,9 +2,9 @@
 #'
 #' @export
 #' @importFrom rhdf5 h5read
-#'
+#' @importFrom edgeR DGEList
 #' @param id a vector of series or sample id's.
-#' @param sample_covariates the names of the sample covariates that are stored
+#' @param sample_columns the names of the sample covariates that are stored
 #'   in the ARCHS4 Dataset; a complete list of what covariates are available
 #'   in the ARCHS4 dataset is found using the [archs4_sample_covariates()]
 #'   function.
