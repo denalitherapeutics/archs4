@@ -95,6 +95,11 @@ archs4_feature_info <- function(feature_type = "gene", source = "human",
       nrow(tmp) == nrow(ainfo),
       all(tmp[[join]] == ainfo[[join]]))
     ainfo <- tmp
+
+    if (feature_type == "gene") {
+      ainfo$symbol_guess <- ainfo$symbol
+      ainfo$symbol <- ainfo$a4name
+    }
   }
 
   ainfo$source <- source
