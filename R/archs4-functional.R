@@ -74,10 +74,10 @@ archs4_feature_info <- function(feature_type = "gene", source = "human",
     if (feature_type == "gene") {
       if (source == "human") {
         join <- "a4name"
-        coltypes <- "cicccciic"
+        coltypes <- "ciiccccciici"
       } else {
         join <- "ens_id"
-        coltypes <- "cciccccciic"
+        coltypes <- "ciicccccciici"
       }
       meta <- readr::read_csv(aug.fn, col_types = coltypes)
       meta <- rename(meta, ensembl_id = "gene_id")
