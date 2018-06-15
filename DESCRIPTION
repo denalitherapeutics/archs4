@@ -1,7 +1,7 @@
 Package: archs4
 Type: Package
 Title: Wrappers to query and extract ARCHS4 data
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(
     person("Steve", "Lianoglou", , "lianoglou@dnli.com", c("aut", "cre")),
     person("Thomas", "Sandmann", , "sandmann@dnli.com", c("aut")),

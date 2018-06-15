@@ -4,6 +4,8 @@
 #' @importFrom rhdf5 h5read
 #' @importFrom edgeR DGEList
 #' @param id a vector of series or sample id's.
+#' @param features a feature-descriptor of the features you want to include
+#'   counts for
 #' @param sample_columns the names of the sample covariates that are stored
 #'   in the ARCHS4 Dataset; a complete list of what covariates are available
 #'   in the ARCHS4 dataset is found using the [archs4_sample_covariates()]
@@ -17,18 +19,29 @@
 #' @examples
 #' a4 <- Archs4Repository()
 #' y <- as.DGEList(a4, "GSE89189", feature_type = "gene")
-as.DGEList <- function(x, id,
+as.DGEList <- function(x, id, features = NULL,
                        sample_columns = c("Sample_title", "Sample_source_name_ch1"),
                        feature_type = c("gene", "transcript"),
-                       row_id = c("ensembl", "symbol")) {
+                       row_id = c("ensembl", "symbol"),
+                       check_missing_samples = TRUE) {
   assert_class(x, "Archs4Repository")
   feature_type <- match.arg(feature_type)
   row_id <- match.arg(row_id)
 
+  if (!is.null(features)) {
+    if (is.character(features)) {
+      features <- feature_lookup(x, features, type = type)
+    }
+    assert_data_frame(features)
+    assert_subset(c("ensembl_id"), colnames(features))
+    features <- distinct(features, ensembl_id, .keep_all = TRUE)
+  }
+
   # Identify the unique samples that are being queried -------------------------
   si <- sample_info(x, id, columns = sample_columns,
-                    check_missing_samples = TRUE)
+                    check_missing_samples = check_missing_samples)
   si <- as.data.frame(si, strinsAsFactors = FALSE)
+  si <- distinct(si, sample_id, .keep_all = TRUE)
   rownames(si) <- si$sample_id
 
   # Check for identifiers that were not found
@@ -50,8 +63,8 @@ as.DGEList <- function(x, id,
   finfo <- as.data.frame(finfo, stringsAsFactors = FALSE)
   if (feature_type == "gene") {
     if (row_id == "ensembl") {
-      finfo <- filter(finfo, !is.na(gene_id))
-      rownames(finfo) <- finfo[["gene_id"]]
+      finfo <- filter(finfo, !is.na(ensembl_id))
+      rownames(finfo) <- finfo[["ensembl_id"]]
     } else {
       rownames(finfo) <- finfo[["a4name"]]
     }
@@ -65,6 +78,12 @@ as.DGEList <- function(x, id,
       rownames(finfo) <- finfo[["ensembl_id"]]
     }
   }
+
+  if (!is.null(features)) {
+    finfo <- semi_join(finfo, features, by = "ensembl_id")
+  }
+
+  rownames(finfo) <- finfo$ensembl_id
 
   # Fetch the count data for the given samples ---------------------------------
   h5col <- paste0("sample_h5idx_", feature_type)
@@ -87,15 +106,37 @@ as.DGEList <- function(x, id,
   counts <- local({
     key <- paste(org, feature_type, sep = "_")
     h5.fn <- file_path(x, key)
-    index <- list(NULL, si[[h5col]])
+    index <- list(finfo$h5idx, si[[h5col]])
     cnts <- rhdf5::h5read(h5.fn, "data/expression", index=index)
     colnames(cnts) <- rownames(si)
-    cnts <- cnts[finfo$h5idx,,drop = FALSE]
+    # cnts <- cnts[finfo$h5idx,,drop = FALSE]
     rownames(cnts) <- rownames(finfo)
     cnts
   })
 
-  out <- edgeR::DGEList(counts, genes = finfo, samples = si)
+  # Tack on the pre-calculated lib.size and norm.factors from the
+  # `estimate_repository_norm_factors` call.
+  libinfo <- sample_table(a4) %>%
+    select(series_id, sample_id, lib.size = libsize, norm.factors = normfactor) %>%
+    distinct(sample_id, .keep_all = TRUE)
+  libinfo <- left_join(select(si, series_id, sample_id),
+                       libinfo, by = c("series_id", "sample_id"))
+  libinfo <- libinfo %>%
+    transform(lib.size = ifelse(is.na(lib.size), mean(lib.size, na.rm=TRUE),
+                                lib.size),
+              norm.factors = ifelse(is.na(norm.factors),
+                                    mean(norm.factors, na.rm=TRUE),
+                                    norm.factors))
+  out <- suppressWarnings(edgeR::DGEList(counts, genes = finfo, samples = si))
+  xref <- match(colnames(out), libinfo$sample_id)
+  if (any(is.na(xref))) {
+    stop("Problem matching sample_id to libinfo data.frame")
+  }
+  if (!all(colnames(out) == libinfo$sample_id[xref])) {
+    stop("Mismatch in outgoing DGEList to libinfo data.frame")
+  }
+  out$samples$lib.size <- libinfo$lib.size[xref]
+  out$samples$norm.factors <- libinfo$norm.factors[xref]
   out
 }
 

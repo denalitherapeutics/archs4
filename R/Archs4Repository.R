@@ -112,6 +112,60 @@ feature_info <- function(x, feature_type = "gene", source = "human",
   archs4_feature_info(feature_type, source, augmented, datadir(x), ...)
 }
 
+#' Perform a loose/fuzzy lookup for a feature
+#'
+#' @export
+#' @param x An Archs4Repository
+#' @param query a character string of feature names to look for
+#' @param feature_type "gene" or "transcript"
+#' @param source organism dataset to lookup
+#' @return a tibble of features that match against the query. If no match is
+#'   found for a query, its row is NA
+feature_lookup <- function(x, query, feature_type = "gene",
+                           source = "human", ...) {
+  assert_class(x, "Archs4Repository")
+  assert_character(query, min.len = 1L)
+  assert_choice(feature_type, c("gene", "transcript"))
+
+  fi <- feature_info(x, feature_type, source, ...)
+  if (feature_type == "gene") {
+    search <- c("ensembl_id", "symbol", "a4name")
+  } else {
+    search <- c("ensembl_id", "gene_id", "symbol")
+  }
+  idxs <- sapply(query, function(qry) .fuzzy_lookup(fi, search, qry))
+  bind_cols(
+    tibble(query = query),
+    fi[idxs,])
+}
+
+.fuzzy_lookup <-   function(x, columns, query) {
+  assert_data_frame(x)
+  assert_subset(columns, colnames(x))
+  assert_string(query)
+  query <- tolower(query)
+
+  idx <- NA_integer_
+  for (cname in columns) {
+    vals <- tolower(x[[cname]])
+    i <- which(vals == query)
+    if (length(i) > 1) {
+      warning("More than one row for `", query, "` found -- taking first one",
+              call. = TRUE)
+      idx <- i[1L]
+      break
+    } else if (length(i) == 1) {
+      idx <- i
+    }
+  }
+  if (is.null(idx)) {
+    warning("Could not find feature using provided query: `", oquery, "`",
+            immediate. = TRUE)
+  }
+  idx
+}
+
+
 #' @export
 #' @rdname archs4_file_info
 #' @param x an `Archs4Repository`
@@ -131,7 +185,7 @@ file_path <- function(x, key) {
 #' @export
 #' @rdname archs4_sample_table
 #' @param x an `Archs4Repository`
-sample_table <- function(x, feature_type = c("gene", "transcript"), ...) {
+sample_table <- function(x, ...) {
   assert_class(x, "Archs4Repository")
   x$sample_table
 }

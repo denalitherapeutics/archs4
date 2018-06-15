@@ -1,7 +1,10 @@
 #' Create meta information for the genes and transcripts in the ARCHS4 dataset.
 #'
 #' @description
-#' This function creates *all* of the feature-level CSV files for the features
+#' This is a preprocessing function that is required to successfully build an
+#' `Archs4Repository`. It is not really intended for use during analyses.
+#'
+#' This Function creates *all* of the feature-level CSV files for the features
 #' enumerated in the `meta/genes` gene-level hdf5 file, and the
 #' `meta/transcript` transcript identfiers in the transctipt-level hdf5 file for
 #' the mouse and human files found in `datadir`.
@@ -149,7 +152,18 @@ create_augmented_feature_info <- function(datadir = getOption("archs4.datadir"))
 #' @return a decorated `a4.ginfo` table.
 .augmented_gene_info <- function(gr, a4.ginfo) {
   requireNamespace("GenomicRanges", quietly = TRUE)
-  a4.ginfo <- mutate(a4.ginfo, join = tolower(a4name))
+  has.ens <- "ens_id" %in% colnames(a4.ginfo)
+  if (has.ens) {
+    a4.ginfo$join <- a4.ginfo$ens_id
+  } else {
+    a4.ginfo$join <- a4.ginfo$a4name
+  }
+  dup.join <- a4.ginfo$join[duplicated(a4.ginfo$join)]
+
+  a4.ginfo.all <- a4.ginfo
+  a4.ginfo <- filter(a4.ginfo, !join %in% dup.join)
+
+  # a4.ginfo <- mutate(a4.ginfo, join = tolower(a4name))
   stopifnot(sum(duplicated(a4.ginfo$join)) == 0L)
 
   gr.exons <- gr[gr$type == "exon"]
@@ -172,8 +186,12 @@ create_augmented_feature_info <- function(datadir = getOption("archs4.datadir"))
     mutate(seqnames = as.character(seqnames)) %>%
     filter(!is.na(as.integer(seqnames)) | seqnames %in% c("X", "Y", "M")) %>%
     droplevels %>%
-    select(gene_id, gene_name, gene_biotype, seqnames, start, end, strand) %>%
-    mutate(join = tolower(gene_name))
+    select(gene_id, gene_name, gene_biotype, seqnames, start, end, strand)
+  if (has.ens) {
+    g.info$join <- g.info$gene_id
+  } else {
+    g.info$join <- g.info$gene_name
+  }
 
   if (any(duplicated(g.info.all$gene_id))) {
     stop("Duplicated gene ids")

@@ -55,7 +55,11 @@ archs4_feature_info <- function(feature_type = "gene", source = "human",
     # aren't universally/technically symbols. In the mouse dataset, the "symbol"
     # names are all uppercase, which is a non-canonical something.
     ainfo <- tibble(a4name = rhdf5::h5read(h5.fn, "meta/genes"),
+                    entrez_id = rhdf5::h5read(h5.fn, "meta/gene_entrezid"),
                     h5idx = seq(a4name))
+    if (source == "mouse") {
+      ainfo$ens_id <- as.character(rhdf5::h5read(h5.fn, "meta/gene_ensemblid"))
+    }
   } else {
     ainfo <- tibble(ensembl_id_full = rhdf5::h5read(h5.fn, "meta/transcript"),
                     ensembl_id = sub("\\.\\d+$", "", ensembl_id_full),
@@ -68,13 +72,21 @@ archs4_feature_info <- function(feature_type = "gene", source = "human",
     aug.fn <- archs4_file_path(aug.fn, datadir = datadir)
 
     if (feature_type == "gene") {
-      join <- "a4name"
-      coltypes <- "cicccciic"
+      if (source == "human") {
+        join <- "a4name"
+        coltypes <- "cicccciic"
+      } else {
+        join <- "ens_id"
+        coltypes <- "cciccccciic"
+      }
       meta <- readr::read_csv(aug.fn, col_types = coltypes)
+      meta <- rename(meta, ensembl_id = "gene_id")
+      meta <- mutate(meta, feature_type = "gene")
     } else {
       join <- "ensembl_id_full"
       coltypes <- "cciicccccciic"
       meta <- readr::read_csv(aug.fn, col_types = coltypes)
+      meta <- mutate(meta, feature_type = "transcript")
     }
     # remove duplicate columns in meta table except for join column
     meta <- meta[, !colnames(meta) %in% setdiff(colnames(ainfo), join)]
@@ -85,6 +97,7 @@ archs4_feature_info <- function(feature_type = "gene", source = "human",
     ainfo <- tmp
   }
 
+  ainfo$source <- source
   ainfo
 }
 
@@ -468,6 +481,7 @@ archs4_sample_info <- function(id,
 #' this table to find out what species is being queried.
 #'
 #' @export
+#' @importFrom readr read_csv
 #' @param feature_type currently, the `"gene"` and `"transcript"` datasets
 #'   are not the same.
 #' @param unroll_series There are some malformed series identifiers, like
@@ -489,7 +503,8 @@ archs4_sample_table <- function(feature_type = c("all", "gene", "transcript"),
                 suffix = c("_gene", "_transcript")) %>%
       mutate(organism = ifelse(is.na(organism_gene), organism_transcript,
                                organism_gene)) %>%
-      mutate(organism_gene = NULL, organism_transcript = NULL)
+      mutate(organism_gene = NULL, organism_transcript = NULL) %>%
+      select(series_id, sample_id, organism, libsize, normfactor, everything())
   } else {
     res <- map_dfr(archs4_sources(), function(source) {
       fkey <- paste(source, feature_type, sep = "_")
@@ -498,6 +513,19 @@ archs4_sample_table <- function(feature_type = c("all", "gene", "transcript"),
                     sample_id = trimws(h5read(h5.fn, "meta/Sample_geo_accession")),
                     sample_h5idx = seq(sample_id),
                     organism = source)
+      if (feature_type == "gene") {
+        # Load library size and sample factors
+        sfn <- file.path(dirname(h5.fn), paste0(source, "_gene-normfactors.csv"))
+        # browser()
+        if (file.exists(sfn)) {
+          sf <- suppressWarnings(read_csv(sfn, col_types = "cciidd"))
+          sf <- select(sf, series_id, sample_id, libsize, normfactor)
+          dat <- left_join(dat, sf, by = c("series_id", "sample_id"))
+        } else {
+          dat$libsize <- h5read(h5.fn, "meta/reads_aligned")
+          dat$normfactor <- 1
+        }
+      }
       if (unroll_series) {
         regex <- "[^GSEM0-9]+"
         dat <- separate_rows(dat, series_id, sep = regex)
