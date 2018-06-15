@@ -237,6 +237,7 @@ create_augmented_feature_info <- function(datadir = getOption("archs4.datadir"))
     left_join(g.info.u, by = "join") %>%
     select(-join) %>%
     rename(symbol = gene_name)
+  out <- left_join(out, gwidths, by = "gene_id")
   stopifnot(
     nrow(out) == nrow(a4.ginfo),
     all(out$h5idx == a4.ginfo$h5idx))
