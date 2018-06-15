@@ -4,12 +4,15 @@
 \alias{as.DGEList}
 \title{Create a DGEList for the expression data of a series or set of samples.}
 \usage{
-as.DGEList(x, id, sample_columns = c("Sample_title",
+as.DGEList(x, id, features = NULL, sample_columns = c("Sample_title",
   "Sample_source_name_ch1"), feature_type = c("gene", "transcript"),
-  row_id = c("ensembl", "symbol"))
+  row_id = c("ensembl", "symbol"), check_missing_samples = TRUE)
 }
 \arguments{
 \item{id}{a vector of series or sample id's.}
+
+\item{features}{a feature-descriptor of the features you want to include
+counts for}
 
 \item{sample_columns}{the names of the sample covariates that are stored
 in the ARCHS4 Dataset; a complete list of what covariates are available

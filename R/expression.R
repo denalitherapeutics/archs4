@@ -36,7 +36,6 @@ fetch_expression <- function(a4, features, samples = NULL,
                              sample_meta = c("Sample_title", "Sample_source_name_ch1"),
                              ...) {
   assert_class(a4, "Archs4Repository")
-  assert_class(features, "data.frame")
   source <- .extract_source(features, samples, source)
 
   # Extract Features
@@ -86,7 +85,10 @@ fetch_expression <- function(a4, features, samples = NULL,
     if (is.data.frame(si)) {
       scols <- unique(c("sample_id", sample_meta))
       si <- si[, intersect(scols, colnames(si)), drop = FALSE]
-      out <- left_join(out, si, by = "sample_id")
+      if (ncol(si) > 1L) {
+        si <- distinct(si, sample_id, .keep_all = TRUE)
+        out <- left_join(out, si, by = "sample_id")
+      }
     } else {
       warning("There was an error fetching the sample metadata requested")
     }
@@ -97,7 +99,10 @@ fetch_expression <- function(a4, features, samples = NULL,
 
 .extract_source <- function(features, samples, source) {
   if (is.null(source)) {
-    source <- unique(c(features$source))
+    source <- character()
+    if (is.data.frame(features)) {
+      source <- unique(features$source)
+    }
     if (is.data.frame(samples)) {
       source <- unique(c(source, samples$source))
     }

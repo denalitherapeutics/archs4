@@ -12,7 +12,10 @@ hdf5 files. There will be \code{SPECIES_FEATURETYPE_augmented_info.csv.gz} files
 saved in this directory whe this function completes.}
 }
 \description{
-This function creates \emph{all} of the feature-level CSV files for the features
+This is a preprocessing function that is required to successfully build an
+\code{Archs4Repository}. It is not really intended for use during analyses.
+
+This Function creates \emph{all} of the feature-level CSV files for the features
 enumerated in the \code{meta/genes} gene-level hdf5 file, and the
 \code{meta/transcript} transcript identfiers in the transctipt-level hdf5 file for
 the mouse and human files found in \code{datadir}.

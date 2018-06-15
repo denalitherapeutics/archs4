@@ -5,7 +5,7 @@
 \alias{archs4_sample_table}
 \title{Lists the GEO series and samples available in the human and mouse datasets}
 \usage{
-sample_table(x, feature_type = c("gene", "transcript"), ...)
+sample_table(x, ...)
 
 archs4_sample_table(feature_type = c("all", "gene", "transcript"),
   unroll_series = TRUE, datadir = getOption("archs4.datadir"))
