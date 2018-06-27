@@ -14,7 +14,7 @@
 #' @param a4 An `Archs4Repository`
 #' @param features a `tibble` of feature descriptors (as returned from
 #'   [feature_info()]). Really this table simply needs the following columns:
-#'   * `"a4name"` or `"gene_id" or `;
+#'   * `"a4name"` or `"ensembl_id" or `;
 #'   * `"feature_type"`: (gene or transcript)
 #'   * `"source"` (human or mouse),;
 #' @param samples a samples identifier: ie. a tibble with series_id and
@@ -57,7 +57,8 @@ fetch_expression <- function(a4, features, samples = NULL,
   assert_subset(c("series_id", "sample_id"), colnames(samples))
   sids <- unique(samples$sample_id)
 
-  y <- as.DGEList(a4, sids, features = features, feature_type = feature_type)
+  y <- as.DGEList(a4, sids, features = features, feature_type = feature_type,
+                  check_missing_samples = FALSE)
 
   counts <- reshape2::melt(y$counts)
   counts$Var1 <- as.character(counts$Var1)

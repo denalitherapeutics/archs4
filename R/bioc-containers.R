@@ -40,7 +40,7 @@ as.DGEList <- function(x, id, features = NULL,
   # Identify the unique samples that are being queried -------------------------
   si <- sample_info(x, id, columns = sample_columns,
                     check_missing_samples = check_missing_samples)
-  si <- as.data.frame(si, strinsAsFactors = FALSE)
+  si <- as.data.frame(si, stringsAsFactors = FALSE)
   si <- distinct(si, sample_id, .keep_all = TRUE)
   rownames(si) <- si$sample_id
 
@@ -103,6 +103,39 @@ as.DGEList <- function(x, id, features = NULL,
     stop("No samples left to assemble expression data")
   }
 
+  # Pull out pre-calcuated lib.size and norm.factor values. This has the
+  # added benefit of pre-emptively identifying samples with weird (huge)
+  # numbers that turn to NAs due to integer rollover, ie. we get random
+  # errors of this variety when reading from the HDF5 file:
+  #
+  #   integer value -2^63 replaced NA. See the section
+  #   'Large integer data types' in the 'rhdf5' vignette
+  #   for more details.
+  #
+  # This happens when we fish data out from the hdf5 file, but also we
+  # ran into this problem when running the `estimate_repository_norm_factors`
+  # function when generating these lib.size and norm.factor values
+  libinfo <- sample_table(a4) %>%
+    select(series_id, sample_id, lib.size = libsize, norm.factors = normfactor,
+           a4libsize) %>%
+    distinct(sample_id, .keep_all = TRUE)
+  libinfo <- select(si, series_id, sample_id) %>%
+    left_join(libinfo, by = c("series_id", "sample_id"))
+  na.overflow <- is.na(libinfo$lib.size) | is.na(libinfo$norm.factors)
+  if (any(na.overflow)) {
+    warning("Removing ", sum(na.overflow), " samples due to NA overflow issues")
+    libinfo <- filter(libinfo, !na.overflow)
+    si <- subset(si, sample_id %in% libinfo$sample_id)
+  }
+
+  # avg.lsize <- mean(libinfo$lib.size, na.rm = TRUE)
+  # avg.nfact <- mean(libinfo$norm.factors, na.rm = TRUE)
+  # libinfo <- libinfo %>%
+  #   transform(lib.size = ifelse(is.na(lib.size), a4libsize, lib.size),
+  #             norm.factors = ifelse(is.na(norm.factors), avg.nfact, norm.factors))
+
+  rownames(si) <- si[["sample_id"]]
+
   counts <- local({
     key <- paste(org, feature_type, sep = "_")
     h5.fn <- file_path(x, key)
@@ -114,19 +147,6 @@ as.DGEList <- function(x, id, features = NULL,
     cnts
   })
 
-  # Tack on the pre-calculated lib.size and norm.factors from the
-  # `estimate_repository_norm_factors` call.
-  libinfo <- sample_table(a4) %>%
-    select(series_id, sample_id, lib.size = libsize, norm.factors = normfactor) %>%
-    distinct(sample_id, .keep_all = TRUE)
-  libinfo <- left_join(select(si, series_id, sample_id),
-                       libinfo, by = c("series_id", "sample_id"))
-  libinfo <- libinfo %>%
-    transform(lib.size = ifelse(is.na(lib.size), mean(lib.size, na.rm=TRUE),
-                                lib.size),
-              norm.factors = ifelse(is.na(norm.factors),
-                                    mean(norm.factors, na.rm=TRUE),
-                                    norm.factors))
   out <- suppressWarnings(edgeR::DGEList(counts, genes = finfo, samples = si))
   xref <- match(colnames(out), libinfo$sample_id)
   if (any(is.na(xref))) {

@@ -54,12 +54,17 @@ archs4_feature_info <- function(feature_type = "gene", source = "human",
     # I am using `a4name` instead of symbol, because the values stored here
     # aren't universally/technically symbols. In the mouse dataset, the "symbol"
     # names are all uppercase, which is a non-canonical something.
+
     ainfo <- tibble(a4name = rhdf5::h5read(h5.fn, "meta/genes"),
-                    entrez_id = rhdf5::h5read(h5.fn, "meta/gene_entrezid"),
-                    h5idx = seq(a4name))
-    if (source == "mouse") {
-      ainfo$ens_id <- as.character(rhdf5::h5read(h5.fn, "meta/gene_ensemblid"))
+                    entrez_id = rhdf5::h5read(h5.fn, "meta/gene_entrezid"))
+    if (source == "human") {
+      ainfo[["a4symbol"]] <- rhdf5::h5read(h5.fn, "meta/gene_hgnc")
+      ainfo[["refseq_id"]] <- rhdf5::h5read(h5.fn, "meta/gene_refseqid")
+    } else {
+      ainfo[["a4symbol"]] <- rhdf5::h5read(h5.fn, "meta/gene_mgi")
+      ainfo[["ens_id"]] <- as.character(rhdf5::h5read(h5.fn, "meta/gene_ensemblid"))
     }
+    ainfo[["h5idx"]] <- seq(nrow(ainfo))
   } else {
     ainfo <- tibble(ensembl_id_full = rhdf5::h5read(h5.fn, "meta/transcript"),
                     ensembl_id = sub("\\.\\d+$", "", ensembl_id_full),
@@ -516,19 +521,17 @@ archs4_sample_table <- function(feature_type = c("all", "gene", "transcript"),
       h5.fn <- archs4_file_path(fkey, datadir = datadir)
       dat <- tibble(series_id = trimws(h5read(h5.fn, "meta/Sample_series_id")),
                     sample_id = trimws(h5read(h5.fn, "meta/Sample_geo_accession")),
-                    sample_h5idx = seq(sample_id),
-                    organism = source)
+                    organism = source,
+                    sample_h5idx = seq(sample_id))
       if (feature_type == "gene") {
-        # Load library size and sample factors
+        dat[["a4libsize"]] <- as.vector(rhdf5::h5read(h5.fn, 'meta/reads_aligned'))
+
+        # Load manually estimated library size and normalization factors.
         sfn <- file.path(dirname(h5.fn), paste0(source, "_gene-normfactors.csv"))
-        # browser()
         if (file.exists(sfn)) {
           sf <- suppressWarnings(read_csv(sfn, col_types = "cciidd"))
           sf <- select(sf, series_id, sample_id, libsize, normfactor)
           dat <- left_join(dat, sf, by = c("series_id", "sample_id"))
-        } else {
-          dat$libsize <- h5read(h5.fn, "meta/reads_aligned")
-          dat$normfactor <- 1
         }
       }
       if (unroll_series) {

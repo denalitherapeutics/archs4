@@ -129,7 +129,7 @@ feature_lookup <- function(x, query, feature_type = "gene",
 
   fi <- feature_info(x, feature_type, source, ...)
   if (feature_type == "gene") {
-    search <- c("ensembl_id", "symbol", "a4name")
+    search <- c("ensembl_id", "symbol", "a4name", "a4symbol")
   } else {
     search <- c("ensembl_id", "gene_id", "symbol")
   }
