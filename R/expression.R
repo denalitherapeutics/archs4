@@ -10,6 +10,7 @@
 #' @export
 #' @importFrom edgeR cpm
 #' @importFrom reshape2 melt
+#' @seealso [as.DGEList()]
 #'
 #' @param a4 An `Archs4Repository`
 #' @param features a `tibble` of feature descriptors (as returned from
@@ -28,7 +29,7 @@
 #'   (one gene one sample)
 #' @examples
 #' a4 <- Archs4Repository()
-#' gnz <- feature_lookup(a4, c("CFAP65", "PECR"), "gene")
+#' gnz <- feature_lookup(a4, c("CFAP65", "PECR"))
 #' gexprs <- fetch_expression(a4, gnz)
 fetch_expression <- function(a4, features, samples = NULL,
                              feature_type = "gene", source = NULL,

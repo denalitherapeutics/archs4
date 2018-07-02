@@ -1,8 +1,12 @@
 #' Create a DGEList for the expression data of a series or set of samples.
 #'
+#'
+#'
 #' @export
 #' @importFrom rhdf5 h5read
 #' @importFrom edgeR DGEList
+#' @seealso [fetch_expression()]
+#'
 #' @param id a vector of series or sample id's.
 #' @param features a feature-descriptor of the features you want to include
 #'   counts for
@@ -31,9 +35,16 @@ as.DGEList <- function(x, id, features = NULL,
   if (!is.null(features)) {
     if (is.character(features)) {
       features <- feature_lookup(x, features, type = type)
+      if (any(is.na(features$a4name))) {
+        warning("Removing 'not found' features from query")
+        features <- filter(features, !is.na(a4name))
+      }
     }
-    assert_data_frame(features)
-    assert_subset(c("ensembl_id"), colnames(features))
+    assert_data_frame(features, min.rows = 1L)
+    assert_subset(c("ensembl_id", "a4name"), colnames(features))
+    # features <- distinct(features, ensembl_id, .keep_all = TRUE)
+    # ensembl_id is something of a "second class citizen". The a4name is
+    # what has been there in the ARCHS4 data since "the beginning"
     features <- distinct(features, ensembl_id, .keep_all = TRUE)
   }
 
@@ -80,10 +91,12 @@ as.DGEList <- function(x, id, features = NULL,
   }
 
   if (!is.null(features)) {
-    finfo <- semi_join(finfo, features, by = "ensembl_id")
+    # cf. note about ensembl_id being a second class citizen
+    # finfo <- semi_join(finfo, features, by = "ensembl_id")
+    # finfo <- semi_join(finfo, features, by = "a4name")
+    # semi_join (and filter(?)) strips rownames!
+    finfo <- subset(finfo, a4name %in% features[["a4name"]])
   }
-
-  rownames(finfo) <- finfo$ensembl_id
 
   # Fetch the count data for the given samples ---------------------------------
   h5col <- paste0("sample_h5idx_", feature_type)

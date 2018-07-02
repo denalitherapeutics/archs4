@@ -112,34 +112,52 @@ feature_info <- function(x, feature_type = "gene", source = "human",
   archs4_feature_info(feature_type, source, augmented, datadir(x), ...)
 }
 
-#' Perform a loose/fuzzy lookup for a feature
+#' Perform a loose/fuzzy lookup for a gene/transcript feature.
+#'
+#' This funciton facilitates exploratory data analyses by trying to find gene
+#' or transcripts by different type of identifiers (symbol, ensembl_id, etc).
 #'
 #' @export
 #' @param x An Archs4Repository
 #' @param query a character string of feature names to look for
 #' @param feature_type "gene" or "transcript"
 #' @param source organism dataset to lookup
-#' @return a tibble of features that match against the query. If no match is
-#'   found for a query, its row is NA
+#' @return a tibble of features that match against the query. The first column
+#'   is the value of the query itself. If no match is found for a query, its
+#'   row is all `NA`.
+#' @examples
+#' a4 <- Archs4Repository()
+#' features <- feature_lookup(a4, c("CFAP65", "PECR", "ENSG00000131408"),
+#'                            feature_type = "gene", source ="human")
 feature_lookup <- function(x, query, feature_type = "gene",
                            source = "human", ...) {
   assert_class(x, "Archs4Repository")
-  assert_character(query, min.len = 1L)
+  assert_character(query, min.len = 1L, any.missing = FALSE)
   assert_choice(feature_type, c("gene", "transcript"))
+  query <- unique(query)
 
   fi <- feature_info(x, feature_type, source, ...)
   if (feature_type == "gene") {
-    search <- c("ensembl_id", "symbol", "a4name", "a4symbol")
+    search <- c("ensembl_id", "symbol", "entrez_id", "a4external")
   } else {
     search <- c("ensembl_id", "gene_id", "symbol")
   }
+  search <- intersect(search, colnames(fi))
+
   idxs <- sapply(query, function(qry) .fuzzy_lookup(fi, search, qry))
+  isna <- is.na(idxs)
+  if (any(isna)) {
+    warning("The following ", feature_type, " queries were not found",
+            paste(query[isna], paste = ","))
+    # idxs <- idxs[!isna]
+    # query <- query[!isna]
+  }
   bind_cols(
     tibble(query = query),
     fi[idxs,])
 }
 
-.fuzzy_lookup <-   function(x, columns, query) {
+.fuzzy_lookup <- function(x, columns, query) {
   assert_data_frame(x)
   assert_subset(columns, colnames(x))
   assert_string(query)

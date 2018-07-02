@@ -56,13 +56,13 @@ archs4_feature_info <- function(feature_type = "gene", source = "human",
     # names are all uppercase, which is a non-canonical something.
 
     ainfo <- tibble(a4name = rhdf5::h5read(h5.fn, "meta/genes"),
-                    entrez_id = rhdf5::h5read(h5.fn, "meta/gene_entrezid"))
+                    entrez_id = .h5read(h5.fn, "meta/gene_entrezid"))
     if (source == "human") {
-      ainfo[["a4symbol"]] <- rhdf5::h5read(h5.fn, "meta/gene_hgnc")
-      ainfo[["refseq_id"]] <- rhdf5::h5read(h5.fn, "meta/gene_refseqid")
+      ainfo[["a4external"]] <- .h5read(h5.fn, "meta/gene_hgnc")
+      ainfo[["refseq_id"]] <- .h5read(h5.fn, "meta/gene_refseqid")
     } else {
-      ainfo[["a4symbol"]] <- rhdf5::h5read(h5.fn, "meta/gene_mgi")
-      ainfo[["ens_id"]] <- as.character(rhdf5::h5read(h5.fn, "meta/gene_ensemblid"))
+      ainfo[["a4external"]] <- .h5read(h5.fn, "meta/gene_mgi")
+      ainfo[["ens_id"]] <- as.character(.h5read(h5.fn, "meta/gene_ensemblid"))
     }
     ainfo[["h5idx"]] <- seq(nrow(ainfo))
   } else {
@@ -79,12 +79,14 @@ archs4_feature_info <- function(feature_type = "gene", source = "human",
     if (feature_type == "gene") {
       if (source == "human") {
         join <- "a4name"
-        coltypes <- "ciiccccciici"
+        coltypes <- "cciccccciici"
       } else {
         join <- "ens_id"
-        coltypes <- "ciicccccciici"
+        coltypes <- "ccicccccciici"
       }
       meta <- readr::read_csv(aug.fn, col_types = coltypes)
+      meta <- mutate(meta,
+                     entrez_id = ifelse(entrez_id == "null", NA, entrez_id))
       meta <- rename(meta, ensembl_id = "gene_id")
       meta <- mutate(meta, feature_type = "gene")
     } else {
@@ -101,10 +103,10 @@ archs4_feature_info <- function(feature_type = "gene", source = "human",
       all(tmp[[join]] == ainfo[[join]]))
     ainfo <- tmp
 
-    if (feature_type == "gene") {
-      ainfo$symbol_guess <- ainfo$symbol
-      ainfo$symbol <- ainfo$a4name
-    }
+    # if (feature_type == "gene") {
+    #   ainfo$symbol_guess <- ainfo$symbol
+    #   ainfo$symbol <- ainfo$a4name
+    # }
   }
 
   ainfo$source <- source
@@ -462,7 +464,7 @@ archs4_sample_info <- function(id,
   if (any(ginfo)) {
     i <- list(x$sample_h5idx_gene[ginfo])
     for (what in columns) {
-      out[[what]][ginfo] <- h5read(h5g.fn, paste0("meta/", what), i)
+      out[[what]][ginfo] <- .h5read(h5g.fn, paste0("meta/", what), i)
     }
   }
 
@@ -471,7 +473,7 @@ archs4_sample_info <- function(id,
   if (any(tinfo)) {
     i <- list(x$sample_h5idx_transcript[tinfo])
     for (what in columns) {
-      out[[what]][tinfo] <- h5read(h5t.fn, paste0("meta/", what), i)
+      out[[what]][tinfo] <- .h5read(h5t.fn, paste0("meta/", what), i)
     }
   }
 
@@ -514,7 +516,7 @@ archs4_sample_table <- function(feature_type = c("all", "gene", "transcript"),
       mutate(organism = ifelse(is.na(organism_gene), organism_transcript,
                                organism_gene)) %>%
       mutate(organism_gene = NULL, organism_transcript = NULL) %>%
-      select(series_id, sample_id, organism, libsize, normfactor, everything())
+      select(series_id, sample_id, organism, everything())
   } else {
     res <- map_dfr(archs4_sources(), function(source) {
       fkey <- paste(source, feature_type, sep = "_")
@@ -524,7 +526,7 @@ archs4_sample_table <- function(feature_type = c("all", "gene", "transcript"),
                     organism = source,
                     sample_h5idx = seq(sample_id))
       if (feature_type == "gene") {
-        dat[["a4libsize"]] <- as.vector(rhdf5::h5read(h5.fn, 'meta/reads_aligned'))
+        dat[["a4libsize"]] <- as.vector(.h5read(h5.fn, 'meta/reads_aligned'))
 
         # Load manually estimated library size and normalization factors.
         sfn <- file.path(dirname(h5.fn), paste0(source, "_gene-normfactors.csv"))
