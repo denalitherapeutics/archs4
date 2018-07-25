@@ -57,12 +57,27 @@ archs4_feature_info <- function(feature_type = "gene", source = "human",
 
     ainfo <- tibble(a4name = rhdf5::h5read(h5.fn, "meta/genes"),
                     entrez_id = .h5read(h5.fn, "meta/gene_entrezid"))
+    is.v2m <- source == "mouse" & all(ainfo$a4name == toupper(ainfo$a4name))
     if (source == "human") {
       ainfo[["a4external"]] <- .h5read(h5.fn, "meta/gene_hgnc")
       ainfo[["refseq_id"]] <- .h5read(h5.fn, "meta/gene_refseqid")
+      join <- c(a4name = "a4name")
     } else {
+      # if (is.v2m) {
+      #   # v2 of the mouse-level gene data had gene names in all caps. I am
+      #   # changing this to "title case".
+      #   ainfo[["join"]] <- paste0(
+      #     substr(ainfo[["a4name"]], 1, 1),
+      #     tolower(substring(ainfo[["a4name"]], 2)))
+      # }
       ainfo[["a4external"]] <- .h5read(h5.fn, "meta/gene_mgi")
       ainfo[["ens_id"]] <- as.character(.h5read(h5.fn, "meta/gene_ensemblid"))
+      if (!all(is.na(ainfo[["ens_id"]]))) {
+        join <- c(ens_id = "ensembl_id")
+      } else {
+        join <- c(join = "join")
+        ainfo[["join"]] <- tolower(ainfo[["a4name"]])
+      }
     }
     ainfo[["h5idx"]] <- seq(nrow(ainfo))
   } else {
@@ -78,10 +93,8 @@ archs4_feature_info <- function(feature_type = "gene", source = "human",
 
     if (feature_type == "gene") {
       if (source == "human") {
-        join <- "a4name"
         coltypes <- "cciccccciici"
       } else {
-        join <- "ens_id"
         coltypes <- "ccicccccciici"
       }
       meta <- readr::read_csv(aug.fn, col_types = coltypes)
@@ -89,15 +102,21 @@ archs4_feature_info <- function(feature_type = "gene", source = "human",
                      entrez_id = ifelse(entrez_id == "null", NA, entrez_id))
       meta <- rename(meta, ensembl_id = "gene_id")
       meta <- mutate(meta, feature_type = "gene")
+      if (join == "join") {
+        meta[["join"]] <- tolower(meta[["symbol"]])
+      }
     } else {
       join <- "ensembl_id_full"
       coltypes <- "cciicccccciic"
       meta <- readr::read_csv(aug.fn, col_types = coltypes)
       meta <- mutate(meta, feature_type = "transcript")
     }
+
     # remove duplicate columns in meta table except for join column
     meta <- meta[, !colnames(meta) %in% setdiff(colnames(ainfo), join)]
+    meta <- meta[!duplicated(meta[[join]]) & !is.na(meta[[join]]),]
     tmp <- left_join(ainfo, meta, by = join)
+
     stopifnot(
       nrow(tmp) == nrow(ainfo),
       all(tmp[[join]] == ainfo[[join]]))
@@ -108,6 +127,11 @@ archs4_feature_info <- function(feature_type = "gene", source = "human",
     #   ainfo$symbol <- ainfo$a4name
     # }
   }
+
+  if ("ens_id" %in% colnames(ainfo) && !"ensembl_id" %in% colnames(ainfo)) {
+    ainfo <- rename(ainfo, ensembl_id = "ens_id")
+  }
+  if ("join" %in% colnames(ainfo)) ainfo[["join"]] <- NULL
 
   ainfo$source <- source
   ainfo

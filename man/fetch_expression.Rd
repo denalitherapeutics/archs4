@@ -14,7 +14,7 @@ fetch_expression(a4, features, samples = NULL, feature_type = "gene",
 \item{features}{a \code{tibble} of feature descriptors (as returned from
 \code{\link[=feature_info]{feature_info()}}). Really this table simply needs the following columns:
 \itemize{
-\item \code{"a4name"} or \code{"gene_id" or};
+\item \code{"a4name"} or \code{"ensembl_id" or};
 \item \code{"feature_type"}: (gene or transcript)
 \item \code{"source"} (human or mouse),;
 }}
@@ -45,6 +45,9 @@ to compare how ratios of genes compare across samples.
 }
 \examples{
 a4 <- Archs4Repository()
-gnz <- feature_lookup(a4, c("CFAP65", "PECR"), "gene")
+gnz <- feature_lookup(a4, c("CFAP65", "PECR"))
 gexprs <- fetch_expression(a4, gnz)
+}
+\seealso{
+\code{\link[=as.DGEList]{as.DGEList()}}
 }

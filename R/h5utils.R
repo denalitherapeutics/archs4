@@ -32,5 +32,11 @@
       out <- array(default_value, default_dim)
     }
   }
+
+  if (is.null(dim(out)) || length(dim(out)) == 1L) {
+    na.it <- out %in% c("na", "NA", "null", "NULL")
+    out[na.it] <- NA
+  }
+
   out
 }

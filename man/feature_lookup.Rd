@@ -2,7 +2,7 @@
 % Please edit documentation in R/Archs4Repository.R
 \name{feature_lookup}
 \alias{feature_lookup}
-\title{Perform a loose/fuzzy lookup for a feature}
+\title{Perform a loose/fuzzy lookup for a gene/transcript feature.}
 \usage{
 feature_lookup(x, query, feature_type = "gene", source = "human", ...)
 }
@@ -16,9 +16,16 @@ feature_lookup(x, query, feature_type = "gene", source = "human", ...)
 \item{source}{organism dataset to lookup}
 }
 \value{
-a tibble of features that match against the query. If no match is
-found for a query, its row is NA
+a tibble of features that match against the query. The first column
+is the value of the query itself. If no match is found for a query, its
+row is all \code{NA}.
 }
 \description{
-Perform a loose/fuzzy lookup for a feature
+This funciton facilitates exploratory data analyses by trying to find gene
+or transcripts by different type of identifiers (symbol, ensembl_id, etc).
+}
+\examples{
+a4 <- Archs4Repository()
+features <- feature_lookup(a4, c("CFAP65", "PECR", "ENSG00000131408"),
+                           feature_type = "gene", source ="human")
 }

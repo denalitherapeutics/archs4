@@ -35,3 +35,6 @@ Create a DGEList for the expression data of a series or set of samples.
 a4 <- Archs4Repository()
 y <- as.DGEList(a4, "GSE89189", feature_type = "gene")
 }
+\seealso{
+\code{\link[=fetch_expression]{fetch_expression()}}
+}

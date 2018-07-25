@@ -136,7 +136,7 @@ as.DGEList <- function(x, id, features = NULL,
     left_join(libinfo, by = c("series_id", "sample_id"))
   na.overflow <- is.na(libinfo$lib.size) | is.na(libinfo$norm.factors)
   if (any(na.overflow)) {
-    warning("Removing ", sum(na.overflow), " samples due to NA overflow issues")
+    warning("Removing ", sum(na.overflow), " samples due to libsize NA overflow issues")
     libinfo <- filter(libinfo, !na.overflow)
     si <- subset(si, sample_id %in% libinfo$sample_id)
   }

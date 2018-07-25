@@ -12,6 +12,7 @@ License: Apache 2.0
 URL: https://github.com/denalitherapeutics/archs4#readme
 BugReports: https://github.com/denalitherapeutics/archs4/issues
 Imports:
+    broom,
     checkmate,
     dplyr,
     edgeR,

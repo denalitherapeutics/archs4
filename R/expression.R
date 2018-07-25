@@ -41,21 +41,34 @@ fetch_expression <- function(a4, features, samples = NULL,
 
   # Extract Features
   if (is.character(features)) {
-    features <- feature_lookup(a4, features, feature_type = feature_type)
+    features <- feature_lookup(a4, features, feature_type = feature_type,
+                               source = source)
   }
   assert_data_frame(features)
   assert_subset(c("ensembl_id", "feature_type"), colnames(features))
   features <- distinct(features, h5idx, .keep_all = TRUE)
 
-  # Extract samples
-  if (is.null(samples)) {
-    samples <- a4 %>%
-      sample_table(feature_type = type) %>%
-      filter(organism == source) %>%
-      select(series_id, sample_id)
+  all.samples <- a4 %>%
+    sample_table(feature_type = type) %>%
+    filter(organism == source) %>%
+    select(series_id, sample_id)
+
+  samples.specified <- !is.null(samples)
+  if (!samples.specified) {
+    samples <- all.samples
+  } else {
+    assert_data_frame(samples)
+    assert_subset(c("series_id", "sample_id"), colnames(samples))
+    samples <- distinct(samples, series_id, sample_id, .keep_all = TRUE)
+    missing.samples <- samples %>%
+      anti_join(all.samples, by = c("series_id", "sample_id"))
+    if (nrow(missing.samples)) {
+      warning(nrow(missing.samples), " requested samples are not in archs4")
+      samples <- samples %>%
+        semi_join(all.samples, by = c("series_id", "sample_id"))
+    }
   }
-  assert_data_frame(samples)
-  assert_subset(c("series_id", "sample_id"), colnames(samples))
+
   sids <- unique(samples$sample_id)
 
   y <- as.DGEList(a4, sids, features = features, feature_type = feature_type,
@@ -73,6 +86,7 @@ fetch_expression <- function(a4, features, samples = NULL,
 
   if (is.character(feature_meta)) {
     fi.meta <- feature_info(a4, feature_type = feature_type, source = source)
+    fi.meta <- filter(fi.meta, !is.na(ensembl_id))
     feature_meta <- unique(c("ensembl_id", feature_meta))
     fi.meta <- fi.meta[, colnames(fi.meta) %in% feature_meta, drop = FALSE]
     if (ncol(fi.meta) > 1L) {
@@ -132,9 +146,8 @@ fetch_expression <- function(a4, features, samples = NULL,
 #' transcripts, as well as the organism they should belong to (human, mouse)
 #'
 #' @param x A vector of identifiers
-#' @
 feature_source <- function(x, ...) {
-
+  stop("not implemented yet")
 }
 
 # library size and normalization factor estimation =============================
