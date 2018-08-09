@@ -153,6 +153,9 @@ create_augmented_feature_info <- function(datadir = getOption("archs4.datadir"))
 .augmented_gene_info <- function(gr, a4.ginfo) {
   requireNamespace("GenomicRanges", quietly = TRUE)
   has.ens <- "ens_id" %in% colnames(a4.ginfo)
+  # Not trusting the ensembl_id's for now, due to this:
+  # https://github.com/MaayanLab/archs4/issues/3
+  has.ens <- FALSE
   if (has.ens) {
     a4.ginfo$join <- a4.ginfo$ens_id
   } else {

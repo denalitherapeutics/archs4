@@ -58,26 +58,30 @@ archs4_feature_info <- function(feature_type = "gene", source = "human",
     ainfo <- tibble(a4name = rhdf5::h5read(h5.fn, "meta/genes"),
                     entrez_id = .h5read(h5.fn, "meta/gene_entrezid"))
     is.v2m <- source == "mouse" & all(ainfo$a4name == toupper(ainfo$a4name))
+    is.v2m <- TRUE
     if (source == "human") {
       ainfo[["a4external"]] <- .h5read(h5.fn, "meta/gene_hgnc")
       ainfo[["refseq_id"]] <- .h5read(h5.fn, "meta/gene_refseqid")
       join <- c(a4name = "a4name")
     } else {
-      # if (is.v2m) {
-      #   # v2 of the mouse-level gene data had gene names in all caps. I am
-      #   # changing this to "title case".
-      #   ainfo[["join"]] <- paste0(
-      #     substr(ainfo[["a4name"]], 1, 1),
-      #     tolower(substring(ainfo[["a4name"]], 2)))
-      # }
-      ainfo[["a4external"]] <- .h5read(h5.fn, "meta/gene_mgi")
-      ainfo[["ens_id"]] <- as.character(.h5read(h5.fn, "meta/gene_ensemblid"))
-      if (!all(is.na(ainfo[["ens_id"]]))) {
-        join <- c(ens_id = "ensembl_id")
+      join <- c(a4name = "a4name")
+      if (is.v2m) {
+        # v2 of the mouse-level gene data had gene names in all caps. I am
+        # changing this to "title case".
+        ainfo[["join"]] <- paste0(
+          substr(ainfo[["a4name"]], 1, 1),
+          tolower(substring(ainfo[["a4name"]], 2)))
+        ainfo[["ens_id"]] <- as.character(.h5read(h5.fn, "meta/gene_ensemblid"))
       } else {
-        join <- c(join = "join")
-        ainfo[["join"]] <- tolower(ainfo[["a4name"]])
+        ainfo[["a4external"]] <- .h5read(h5.fn, "meta/gene_mgi")
+        ainfo[["ens_id"]] <- as.character(.h5read(h5.fn, "meta/gene_ensemblid"))
       }
+      # if (!all(is.na(ainfo[["ens_id"]]))) {
+      #   join <- c(ens_id = "ensembl_id")
+      # } else {
+      #   join <- c(join = "join")
+      #   ainfo[["join"]] <- tolower(ainfo[["a4name"]])
+      # }
     }
     ainfo[["h5idx"]] <- seq(nrow(ainfo))
   } else {
@@ -368,9 +372,14 @@ archs4_sample_info <- function(id,
   }
 
   # check sample metadata columns
-  columns <- unique(columns) %>%
-    assert_character(any.missing = FALSE, min.len = 1L) %>%
-    assert_subset(sample_covariates$name)
+  get.meta <- !is.null(columns) && length(columns)
+  if (get.meta) {
+    columns <- unique(columns) %>%
+      assert_character(any.missing = FALSE) %>%
+      assert_subset(sample_covariates$name)
+  } else {
+    columns <- character()
+  }
 
   # This hurts: I'm doing this to ensure that queries to this function where
   # all `id`s are not found in the ARCHS4 repository still return a tibble
@@ -441,7 +450,7 @@ archs4_sample_info <- function(id,
            sample_h5idx_gene, sample_h5idx_transcript, organism)
 
   # Only perform this if there >= 1 series or sample identifiers were found
-  if (nrow(query)) {
+  if (nrow(query) && get.meta) {
     res <- query %>%
       group_by(organism) %>%
       do({

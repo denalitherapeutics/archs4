@@ -128,7 +128,7 @@ as.DGEList <- function(x, id, features = NULL,
   # This happens when we fish data out from the hdf5 file, but also we
   # ran into this problem when running the `estimate_repository_norm_factors`
   # function when generating these lib.size and norm.factor values
-  libinfo <- sample_table(a4) %>%
+  libinfo <- sample_table(x) %>%
     select(series_id, sample_id, lib.size = libsize, norm.factors = normfactor,
            a4libsize) %>%
     distinct(sample_id, .keep_all = TRUE)
