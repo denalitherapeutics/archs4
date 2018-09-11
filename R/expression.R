@@ -46,7 +46,14 @@ fetch_expression <- function(a4, features, samples = NULL,
   }
   assert_data_frame(features)
   assert_subset(c("ensembl_id", "feature_type"), colnames(features))
-  features <- distinct(features, h5idx, .keep_all = TRUE)
+
+  features.all <- distinct(features, ensembl_id)
+  features <- features.all %>%
+    inner_join(feature_info(a4, feature_type, source), by = "ensembl_id")
+  fmiss <- anti_join(features.all, features, by = "ensembl_id")
+  if (nrow(fmiss) > 0L) {
+    warning("Missing ", nrow(fmiss), " features from query")
+  }
 
   all.samples <- a4 %>%
     sample_table(feature_type = type) %>%
