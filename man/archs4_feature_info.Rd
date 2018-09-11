@@ -5,8 +5,8 @@
 \alias{archs4_feature_info}
 \title{Retrieves the feature (gene/transcript) information for the archs4 data}
 \usage{
-feature_info(x, feature_type = "gene", source = "human", augmented = TRUE,
-  ...)
+feature_info(x, feature_type = "gene", source = "human",
+  augmented = TRUE, ...)
 
 archs4_feature_info(feature_type = "gene", source = "human",
   augmented = TRUE, datadir = getOption("archs4.datadir"), ...)

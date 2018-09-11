@@ -8,10 +8,11 @@
 sample_info(x, id, columns = c("Sample_title", "Sample_source_name_ch1"),
   check_missing_samples = TRUE, ...)
 
-archs4_sample_info(id, columns = c("Sample_title", "Sample_source_name_ch1"),
-  sample_table = archs4_sample_table(datadir = datadir),
-  sample_covariates = archs4_sample_covariates(datadir),
-  check_missing_samples = TRUE, datadir = getOption("archs4.datadir"), ...)
+archs4_sample_info(id, columns = c("Sample_title",
+  "Sample_source_name_ch1"), sample_table = archs4_sample_table(datadir =
+  datadir), sample_covariates = archs4_sample_covariates(datadir),
+  check_missing_samples = TRUE, datadir = getOption("archs4.datadir"),
+  ...)
 }
 \arguments{
 \item{x}{an \code{Archs4Repository}}

@@ -5,8 +5,8 @@
 \title{Retrieve expression data for genes/transcripts across samples}
 \usage{
 fetch_expression(a4, features, samples = NULL, feature_type = "gene",
-  source = NULL, feature_meta = "symbol", sample_meta = c("Sample_title",
-  "Sample_source_name_ch1"), ...)
+  source = NULL, feature_meta = "symbol",
+  sample_meta = c("Sample_title", "Sample_source_name_ch1"), ...)
 }
 \arguments{
 \item{a4}{An \code{Archs4Repository}}

@@ -1,7 +1,7 @@
 Package: archs4
 Type: Package
 Title: Wrappers to query and extract ARCHS4 data
-Version: 0.5.1
+Version: 0.5.2
 Authors@R: c(
     person("Steve", "Lianoglou", , "lianoglou@dnli.com", c("aut", "cre")),
     person("Thomas", "Sandmann", , "sandmann@dnli.com", c("aut")),
@@ -33,5 +33,5 @@ Suggests:
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.0.1.9000
+RoxygenNote: 6.1.0
 VignetteBuilder: knitr
