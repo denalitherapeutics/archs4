@@ -200,6 +200,21 @@ file_path <- function(x, key) {
   archs4_file_path(key, file_info = file_info(x), datadir = datadir(x))
 }
 
+#' Extract the read depth and normalization factors for the samples
+#'
+#' @export
+#' @param x an `Archs4Repository`
+#' @param with_a4libsize If `TRUE`, includes an `a4libsize` column, which
+#'   was extracted from the `meta/reads_aligned` hdf5 file. Defaults to `FALSE`.
+#' @return a tibble with sample_id, a4libsize, libsize, normfactor
+libstats <- function(x, with_a4libsize = FALSE) {
+  assert_class(x, "Archs4Repository")
+  cols <- c("libsize", "normfactor")
+  if (with_a4libsize) cols <- c("a4libsize", cols)
+  sample_table(x) %>%
+    select(sample_id, !!cols)
+}
+
 #' @export
 #' @rdname archs4_sample_table
 #' @param x an `Archs4Repository`
