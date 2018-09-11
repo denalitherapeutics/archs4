@@ -25,6 +25,9 @@
 #'   "source" column in your `features` or `samples` data.frame
 #' @param feature_meta additional columns from
 #'   `feature_info(a4, feature_type = feature_type)`
+#' @param sample_meta metadata information to include for the samples. These
+#'   values are extracted from the `meta/VALUE` files in the respective hdf5
+#'   data files. See [archs4_sample_info()] for more details.
 #' @return a data.frame of expression data. Each row is an observation
 #'   (one gene one sample)
 #' @examples
@@ -35,7 +38,7 @@ fetch_expression <- function(a4, features, samples = NULL,
                              feature_type = "gene", source = NULL,
                              feature_meta = "symbol",
                              sample_meta = c("Sample_title", "Sample_source_name_ch1"),
-                             ...) {
+                             prior.count = 3, ...) {
   assert_class(a4, "Archs4Repository")
   source <- .extract_source(features, samples, source)
 
@@ -86,7 +89,7 @@ fetch_expression <- function(a4, features, samples = NULL,
   counts$Var2 <- as.character(counts$Var2)
   colnames(counts) <- c("ensembl_id", "sample_id", "count")
 
-  cpms <- reshape2::melt(edgeR::cpm(y, prior.count = 5, log = TRUE))
+  cpms <- reshape2::melt(edgeR::cpm(y, prior.count = prior.count, log = TRUE))
   counts$cpm <- cpms[[3]]
 
   out <- left_join(samples, counts, by = c("sample_id"))

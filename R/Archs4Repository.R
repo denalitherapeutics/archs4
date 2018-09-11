@@ -212,7 +212,8 @@ libstats <- function(x, with_a4libsize = FALSE) {
   cols <- c("libsize", "normfactor")
   if (with_a4libsize) cols <- c("a4libsize", cols)
   sample_table(x) %>%
-    select(sample_id, !!cols)
+    select(sample_id, !!cols) %>%
+    distinct(sample_id, .keep_all = TRUE)
 }
 
 #' @export

@@ -6,7 +6,8 @@
 \usage{
 fetch_expression(a4, features, samples = NULL, feature_type = "gene",
   source = NULL, feature_meta = "symbol",
-  sample_meta = c("Sample_title", "Sample_source_name_ch1"), ...)
+  sample_meta = c("Sample_title", "Sample_source_name_ch1"),
+  prior.count = 3, ...)
 }
 \arguments{
 \item{a4}{An \code{Archs4Repository}}
@@ -27,6 +28,10 @@ sample_id columns.}
 
 \item{feature_meta}{additional columns from
 \code{feature_info(a4, feature_type = feature_type)}}
+
+\item{sample_meta}{metadata information to include for the samples. These
+values are extracted from the \code{meta/VALUE} files in the respective hdf5
+data files. See \code{\link[=archs4_sample_info]{archs4_sample_info()}} for more details.}
 
 \item{type}{"gene" or "transcript"-level data?}
 }

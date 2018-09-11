@@ -10,8 +10,7 @@ libstats(x, with_a4libsize = FALSE)
 \item{x}{an \code{Archs4Repository}}
 
 \item{with_a4libsize}{If \code{TRUE}, includes an \code{a4libsize} column, which
-was extracted from the \code{meta/reads_aligned} hdf5 file. Defaults to
-\code{FALSE}.}
+was extracted from the \code{meta/reads_aligned} hdf5 file. Defaults to \code{FALSE}.}
 }
 \value{
 a tibble with sample_id, a4libsize, libsize, normfactor
