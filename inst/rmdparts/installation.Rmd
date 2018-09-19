@@ -45,7 +45,7 @@ global `"archs4.datadir`" option to be the path to that directory.
 
 You will have to create a directory on your filesystem which will hold a number
 of data files that the `archs4` package depends on. Let's call this
-directory `$ARCHS4DIR`, which we will define here to be `~/archs4v2data`.
+directory `$ARCHS4DIR`, which we will define here to be `~/archs4v6data`.
 
 The `archs4` package provides the `archs4_local_data_dir_create()` convenience
 function which creates this directory and copies over a `meta.yaml` file into
@@ -55,7 +55,7 @@ transcript-level data.
 
 ```{r, eval = FALSE}
 library(archs4)
-archs4dir <- "~/archs4v2data"
+archs4dir <- "~/archs4v6data"
 archs4_local_data_dir_create(archs4dir)
 ```
 
@@ -112,6 +112,29 @@ just setup. To do so, you can put the following line in your `~/.Rprofile` file:
 
 ```r
 options(archs4.datadir = "~/archs4v2data")
+```
+
+## Library Size and Normalization Factors
+
+It is often convenient to extract normalized versions of the count data from
+the gene-level expression matrices. In order to do this "on-the-fly" we provide
+the `estimate_repository_norm_factors()` functions, which accepts an
+`Archs4Repository` object and essentially performs the steps necessary to
+create edgeR::TMM-like normalization factors across the entire ARCSH4 expression
+atlas.
+
+In order to avoid laoding the entire expression matrix into memory, the
+`estimate_repository_norm_factors()` splits up the processing in batches,
+loading a subset of samples at a time until it completes. **This process will
+take quite some time** (around two hours on a modern laptop).
+
+Note that recent versions of the ARCHS4 data do provide `meta/reads_aligned`
+and `meta/total_reads` entries. We don't use those here, but we can compare
+the values their with what we calculate above.
+
+```{r eval = FALSE}
+a4 <- Archs4Repository(archs4dir)
+estimate_repository_norm_factors(a4)
 ```
 
 ## ARCHS4 Installation Heatlh
